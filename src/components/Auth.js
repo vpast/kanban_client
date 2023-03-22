@@ -12,7 +12,10 @@ const Auth = () => {
           <input type='password' name='password' placeholder='password'></input>
           <input type='submit' value='Login'></input>
           <p>
-            Not registered? <a href='/register' className='link'>Click here!</a>
+            Not registered?{' '}
+            <a href='/register' className='link'>
+              Click here!
+            </a>
           </p>
         </form>
       </div>
