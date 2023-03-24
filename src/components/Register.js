@@ -8,7 +8,7 @@ const Register = () => {
     console.log(registerData)
     window.location.href = '/';
 
-    fetch('http://localhost:5000/check', {
+    fetch('http://localhost:5000/users', {
       method: 'POST',
       body: JSON.stringify(registerData),
       headers: {
