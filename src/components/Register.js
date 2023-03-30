@@ -2,11 +2,14 @@ const Register = () => {
   const registerHandler = (event) => {
     event.preventDefault();
     var registerData = {
-      'email': event.target.email.value,
-      'password': event.target.password.value,
+      email: event.target.email.value,
+      password: event.target.password.value,
     };
-    console.log(registerData)
-    window.location.href = '/';
+    // var form = document.getElementById('registerForm')
+
+    // const payload = new FormData(form)
+    // console.log(payload);
+    // window.location.href = '/';
 
     fetch('http://localhost:5000/users', {
       method: 'POST',
@@ -17,12 +20,19 @@ const Register = () => {
     })
       .then((res) => res.json())
       .then((data) => console.log(data));
+
+    // fetch('http://localhost:5000/post', {
+    //   method: 'POST',
+    //   body: payload,
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => console.log(data));
   };
 
   return (
     <>
       <div className='loginPosition'>
-        <form onSubmit={registerHandler} className='loginForm'>
+        <form onSubmit={registerHandler} className='loginForm' id='registerForm'>
           <input type='email' name='email' placeholder='email'></input>
           <input type='password' name='password' placeholder='password'></input>
           <input type='submit' value='Register'></input>
