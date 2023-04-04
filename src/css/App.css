@@ -3,6 +3,11 @@ body {
   font-family: roboto;
 }
 
+p {
+  margin-block-start: 5px;
+  margin-block-end: 5px;
+}
+
 .link {
   text-decoration: none;
 }
@@ -21,4 +26,4 @@ body {
 .isFieldEmpty {
   color: red;
   display: none;
-}
+  }

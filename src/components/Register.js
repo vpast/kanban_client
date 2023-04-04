@@ -35,8 +35,8 @@ const Register = () => {
         <form onSubmit={registerHandler} className='loginForm' id='registerForm'>
           <input type='email' name='email' placeholder='email'></input>
           <input type='password' name='password' placeholder='password'></input>
-          <p className='isFieldEmpty' id='isFieldEmpty'>Fill all field's please.</p>
           <input type='submit' value='Register'></input>
+          <p className='isFieldEmpty' id='isFieldEmpty'>Fill all field's please.</p>
           <p>
             Already registered?{' '}
             <a href='/' className='link'>
