@@ -13,6 +13,10 @@ const router = createBrowserRouter([
     path: '/register',
     element: <Register />,
   },
+  {
+    path: '/board',
+    element: <Register />,
+  },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

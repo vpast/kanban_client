@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 const Register = () => {
+  const navigate = useNavigate();
+
   const registerHandler = (event) => {
     event.preventDefault();
     var registerData = {
@@ -9,7 +13,7 @@ const Register = () => {
 
     // const payload = new FormData(form)
     // console.log(payload);
-    // window.location.href = '/';
+    navigate('/')
 
     fetch('http://localhost:5000/users', {
       method: 'POST',

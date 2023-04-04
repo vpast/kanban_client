@@ -1,9 +1,15 @@
+import {useNavigate} from 'react-router-dom'
+
 const Auth = () => {
+  const navigate = useNavigate();
+
   const loginHandler = (event) => {
     event.preventDefault();
+    // window.location.href = '/board';
+    navigate('/board')
     console.log(event.target.email.value, event.target.password.value);
   };
-
+  
   return (
     <>
       <div className='loginPosition'>
