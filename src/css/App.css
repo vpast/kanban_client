@@ -17,3 +17,8 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.isFieldEmpty {
+  color: red;
+  display: none;
+}

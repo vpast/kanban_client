@@ -9,28 +9,24 @@ const Register = () => {
       email: event.target.email.value,
       password: event.target.password.value,
     };
-    // var form = document.getElementById('registerForm')
-
-    // const payload = new FormData(form)
-    // console.log(payload);
-    navigate('/')
-
-    fetch('http://localhost:5000/users', {
-      method: 'POST',
-      body: JSON.stringify(registerData),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    
+    if (registerData.email === '' || registerData.password === '') {
+      document.getElementById('isFieldEmpty').style.display = 'block'
+      return
+    } else {
+      document.getElementById('isFieldEmpty').style.display = 'none'
+      fetch('http://localhost:5000/users', {
+        method: 'POST',
+        body: JSON.stringify(registerData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
       .then((res) => res.json())
       .then((data) => console.log(data));
+      navigate('/')
+    }
 
-    // fetch('http://localhost:5000/post', {
-    //   method: 'POST',
-    //   body: payload,
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => console.log(data));
   };
 
   return (
@@ -39,6 +35,7 @@ const Register = () => {
         <form onSubmit={registerHandler} className='loginForm' id='registerForm'>
           <input type='email' name='email' placeholder='email'></input>
           <input type='password' name='password' placeholder='password'></input>
+          <p className='isFieldEmpty' id='isFieldEmpty'>Fill all field's please.</p>
           <input type='submit' value='Register'></input>
           <p>
             Already registered?{' '}
