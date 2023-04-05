@@ -6,14 +6,29 @@ const Auth = () => {
   const loginHandler = (event) => {
     event.preventDefault();
 
-    if (event.target.email.value === '' || event.target.password.value === '') {
+    var loginData = {
+      email: event.target.email.value,
+      password: event.target.password.value,
+    };
+
+    if (loginData.email === '' || loginData.password === '') {
       document.getElementById('isFieldEmpty').style.display = 'block'
     } else {
       document.getElementById('isFieldEmpty').style.display = 'none'
-      navigate('/board')
+      
+      fetch('http://localhost:5000/users', {
+        method: 'POST',
+        body: JSON.stringify(loginData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((res) => res.json())
+      .then((data) => console.log(data));
+      // navigate('/board')
     }
     
-    // console.log(event.target.email.value, event.target.password.value);
+    // console.log(loginData.email, loginData.password);
   };
   
   return (
