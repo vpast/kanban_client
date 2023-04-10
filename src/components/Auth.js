@@ -16,7 +16,7 @@ const Auth = () => {
     } else {
       document.getElementById('isFieldEmpty').style.display = 'none'
       
-      fetch('http://localhost:5000/users', {
+      fetch('http://localhost:5000/users/login', {
         method: 'POST',
         body: JSON.stringify(loginData),
         headers: {

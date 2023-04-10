@@ -15,7 +15,7 @@ const Register = () => {
       return
     } else {
       document.getElementById('isFieldEmpty').style.display = 'none'
-      fetch('http://localhost:5000/users', {
+      fetch('http://localhost:5000/users/register', {
         method: 'POST',
         body: JSON.stringify(registerData),
         headers: {
