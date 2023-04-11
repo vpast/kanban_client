@@ -21,11 +21,14 @@ const Auth = () => {
         body: JSON.stringify(loginData),
         headers: {
           'Content-Type': 'application/json',
-        },
-      })
-      .then((res) => res.json())
-      .then((data) => console.log(data));
-      // navigate('/board')
+        }
+      }).then(response => {
+        if (response.status === 200) {
+          console.log(response.status)
+          navigate('/board')
+        }
+      }) 
+      
     }
     
     // console.log(loginData.email, loginData.password);

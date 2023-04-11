@@ -20,10 +20,8 @@ const Register = () => {
         body: JSON.stringify(registerData),
         headers: {
           'Content-Type': 'application/json',
-        },
+        }
       })
-      .then((res) => res.json())
-      .then((data) => console.log(data));
       // navigate('/')
     }
 
