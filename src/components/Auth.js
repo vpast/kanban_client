@@ -41,14 +41,14 @@ const Auth = () => {
             name='email'
             placeholder='email'
             required
-            pattern='\S(.*\S)?'
+            pattern='^\S+@\S+\.\S+$'
           ></input>
           <input
             type='password'
             name='password'
             placeholder='password'
             required
-            pattern='\S(.*\S)?'
+            pattern='^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
           ></input>
           <input type='submit' value='Login'></input>
           <p>
