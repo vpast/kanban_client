@@ -27,6 +27,9 @@ const Register = () => {
           console.log(response.status);
           navigate('/board')
         }
+        if (response.status === 400) {
+          alert('Email is already taken')
+        }
       });
     }
   };
