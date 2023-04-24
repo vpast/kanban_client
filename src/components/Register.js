@@ -57,6 +57,7 @@ const Register = () => {
             pattern='^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
           ></input>
           <input type='submit' value='Register'></input>
+          <p>Your password shoud be at least 8 characters <br></br> and contain uppercase and special symbol.</p>
           <p>
             Already registered?{' '}
             <a href='/' className='link'>
