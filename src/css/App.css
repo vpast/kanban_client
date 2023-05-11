@@ -59,3 +59,22 @@ p {
   margin: 0;
   padding-left: 25px;
 }
+
+.workSpacePadding {
+  padding-left: 250px;
+}
+
+.workSpacePadding li {
+  list-style: none;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 20px;
+  text-align: center;
+  color: white;
+  border: 5px black solid;
+  border-radius: 10px;
+}
+
+.workSpaceCard {
+  width: 272px;
+}
