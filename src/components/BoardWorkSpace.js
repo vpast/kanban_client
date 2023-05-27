@@ -1,4 +1,5 @@
-import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { Droppable } from 'react-beautiful-dnd';
+import TaskList from './TaskList';
 
 const BoardWorkSpace = () => {
   let getId = (event, id) => {
@@ -11,26 +12,13 @@ const BoardWorkSpace = () => {
     <>
       <div className='workSpacePadding'>
         <div className='workSpaceCard'>
-          <Droppable droppableId={getId}>
+          <Droppable droppableId='1'>
             {(provided) => (
-              <ul innerRef={provided.innerRef} {...provided.droppableProps}>
-                <Draggable draggableId={getId}>
-                  {(provided) => {
-                    <div
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      innerRef={provided.innerRef}
-                    >
-                      <li id='1'>Task 1</li>
-                    </div>;
-                  }}
-                </Draggable>
-                <li id='2'>Task 2</li>
-                <li id='3'>Task 3</li>
-                <li id='4'>Task 4</li>
-                <li id='5'>Task 5</li>
-                {provided.placeholder}
-              </ul>
+              <div ref={provided.innerRef}>
+                <TaskList {...provided.droppableProps}>
+                  {provided.placeholder}
+                </TaskList>
+              </div>
             )}
           </Droppable>
         </div>
