@@ -1,4 +1,4 @@
-import Auth from "./components/Auth"
+import Auth from "./components/auth/Auth"
 import "./css/App.css"
 // import { useRouter } from 'next/router'
 
