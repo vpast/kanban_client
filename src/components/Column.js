@@ -5,7 +5,7 @@ const Column = (props) => {
 
   return (
     <>
-      <div className='container'>
+      <div className='containerTaskBox'>
         <p>{props.column.title}</p>
         <Droppable droppableId={props.column.id}>
           {provided => (
