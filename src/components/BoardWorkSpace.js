@@ -4,8 +4,8 @@ import Tasks from '../Tasks';
 import { useState } from 'react';
 
 const BoardWorkSpace = () => {
-  const [state, setState] = useState(Tasks)
-  
+  const [state, setState] = useState(Tasks);
+
   let onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
 
@@ -20,24 +20,53 @@ const BoardWorkSpace = () => {
       return;
     }
 
-    const column = state.columns[source.droppableId];
-    const newTaskIds = Array.from(column.taskIds);
-    newTaskIds.splice(source.index, 1);
-    newTaskIds.splice(destination.index, 0, draggableId);
+    const columnStart = state.columns[source.droppableId];
+    const columnFinish = state.columns[destination.droppableId];
 
-    const newColumn = {
-      ...column,
-      taskIds: newTaskIds,
+    if (columnStart === columnFinish) {
+      const newTaskIds = Array.from(columnStart.taskIds);
+      newTaskIds.splice(source.index, 1);
+      newTaskIds.splice(destination.index, 0, draggableId);
+
+      const newColumn = {
+        ...columnStart,
+        taskIds: newTaskIds,
+      };
+
+      const newState = {
+        ...state,
+        columns: {
+          ...state.columns,
+          [newColumn.id]: newColumn,
+        },
+      };
+
+      setState(newState);
+      return;
+    }
+
+    const startTaskIds = Array.from(columnStart.taskIds);
+    startTaskIds.splice(source.index, 1);
+    const newStart = {
+      ...columnStart,
+      taskIds: startTaskIds,
+    };
+
+    const finishTaskIds = Array.from(columnFinish.taskIds);
+    finishTaskIds.splice(destination.index, 0, draggableId);
+    const newFinish = {
+      ...columnFinish,
+      taskIds: finishTaskIds,
     };
 
     const newState = {
       ...state,
       columns: {
         ...state.columns,
-        [newColumn.id]: newColumn,
+        [newStart.id]: newStart,
+        [newFinish.id]: newFinish,
       },
     };
-
     setState(newState);
   };
 

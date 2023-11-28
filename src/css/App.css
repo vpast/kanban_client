@@ -81,19 +81,6 @@ p {
   flex-direction: row;
 }
 
-.containerTaskBox {
-  border: 1px solid rgb(0, 0, 0);
-  border-radius: 8px;
-  padding: 8px;
-  margin: 5px;
-  background-color: grey;
-}
-
-.containerTaskBox p {
-  font-weight: 600;
-  padding-left: 8px;
-}
-
 .containerTaskBoxTask {
   border: 1px solid rgb(0, 0, 0);
   border-radius: 8px;
@@ -103,9 +90,5 @@ p {
 }
 
 .containerTaskBoxTask:active {
-  background-color: lightblue;
-}
-
-.containerTaskBox:hover:active {
-  background-color: lightsalmon;
+  background-color: lightblue; 
 }
