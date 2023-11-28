@@ -5,8 +5,8 @@ const Column = (props) => {
 
   return (
     <>
-      <div>
-        <div>{props.column.title}</div>
+      <div className='container'>
+        <p>{props.column.title}</p>
         <Droppable droppableId={props.column.id}>
           {provided => (
             <div ref={provided.innerRef} {...provided.droppableProps}>

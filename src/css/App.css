@@ -76,13 +76,20 @@ p {
 }
 
 .workSpaceCard {
-  width: 272px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
 }
 
 .container {
-  border: 1px solid lightgrey;
-  border-radius: 2px;
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 8px;
   padding: 8px;
-  margin-bottom: 8px;
-  background-color: white;
+  margin: 5px;
+  background-color: grey;
+}
+
+.container p {
+  font-weight: 600;
+  padding-left: 8px;
 }
