@@ -83,10 +83,10 @@ p {
 
 .containerTaskBoxTask {
   border: 1px solid rgb(0, 0, 0);
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 8px;
   margin: 5px;
-  background-color: grey;
+  background-color: rgb(204, 204, 204);
 }
 
 .containerTaskBoxTask:active {
