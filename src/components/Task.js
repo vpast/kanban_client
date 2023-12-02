@@ -1,26 +1,36 @@
 import { Draggable } from '@hello-pangea/dnd';
+import styled from 'styled-components';
+
+const TaskContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
 
 const Task = (props) => {
-  let check = () => {
-    console.log(props.task.id);
+  const { task, index, onDelete } = props;
+
+  const handleDeleteTask = () => {
+    // console.log('Deleting task with ID:', task.id);
+    onDelete(task.id);
   };
+
   return (
     <>
       <Draggable
-        draggableId={props.task.id}
-        index={props.index}
+        draggableId={task?.id}
+        index={index}
         className='containerTaskBox'
       >
         {(provided) => (
-          <div
+          <TaskContainer
             className='containerTaskBoxTask'
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             ref={provided.innerRef}
-            onClick={check}
           >
-            {props.task.content}
-          </div>
+            <div>{task?.content}</div>
+            <button onClick={handleDeleteTask}>&times;</button>
+          </TaskContainer>
         )}
       </Draggable>
     </>

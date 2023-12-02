@@ -92,3 +92,8 @@ p {
 .containerTaskBoxTask:active {
   background-color: lightblue; 
 }
+
+.buttonsPlacement {
+  display: flex;
+  justify-content: space-between;
+}

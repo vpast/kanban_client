@@ -88,6 +88,11 @@ const BoardWorkSpace = () => {
     setState(newState);
   };
 
+  const updateState = (newState) => {
+    // console.log('Updating state in BoardWorkSpace:', newState);
+    setState(newState);
+  };
+
   return (
     <>
       <div className='workSpacePadding'>
@@ -111,6 +116,7 @@ const BoardWorkSpace = () => {
                         column={column}
                         tasks={tasks}
                         index={index}
+                        updateData={updateState}
                       />
                     );
                   })}
