@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import isPropValid from '@emotion/is-prop-valid';
 
 const Container = styled.div`
-  height: ${(props) => (props.isModalOpen ? '300px' : '260px')};
+  height: ${(props) => props.dynamicHeight}px;
   border: 1px solid rgb(0, 0, 0);
   border-radius: 10px;
   margin: 5px;
@@ -74,12 +74,18 @@ const ButtonDecline = styled.button`
   cursor: pointer;
 `;
 
-const TaskInput = styled.input`
+const TaskInput = styled.textarea`
   border-radius: 5px;
   width: 190px;
   height: 30px;
   padding: 8px;
   margin: 5px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  resize: none;
+  height: auto;
+  min-height: 30px;
+  max-height: 300px;
 `;
 
 const Label = styled.label`
@@ -96,21 +102,32 @@ const Column = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [taskCount, setTaskCount] = useState(props.tasks.length);
-  const initialHeight = 260 + (props.tasks.length - 4) * 50;
-  const [containerHeight, setContainerHeight] = useState(`${initialHeight}`);
+  const [containerHeight, setContainerHeight] = useState(100);
 
   const updateListHeight = useCallback(() => {
-    if (taskCount > 4) {
-      const newHeight = 260 + (taskCount - 4) * 44; // Например, увеличиваем высоту на 50 пикселей за каждую задачу
-      setContainerHeight(`${newHeight}px`);
-    }
-  }, [taskCount, setContainerHeight]);
+    const totalTaskHeight = props.tasks.reduce(
+      (total, task) => total + task.height,
+      0
+    );
+    const newHeight = Math.max(90, totalTaskHeight + 20);
+    setContainerHeight(newHeight);
+  }, [props.tasks]);
 
   useEffect(() => {
     updateListHeight();
   }, [taskCount, updateListHeight]);
 
   // console.log(props.tasks.length);
+
+  const autoExpandTextarea = (textarea) => {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  };
+
+  const handleInputChange = (event) => {
+    setNewTask({ ...newTask, content: event.target.value });
+    autoExpandTextarea(event.target);
+  };
 
   const handleAddTask = () => {
     if (!props.tasks) {
@@ -182,7 +199,7 @@ const Column = (props) => {
               {...provided.draggableProps}
               ref={provided.innerRef}
               $isModalOpen={showModal}
-              style={{ height: containerHeight }}
+              dynamicHeight={containerHeight}
             >
               <Title {...provided.dragHandleProps}>{props.column.title}</Title>
               <Droppable droppableId={props.column.id} type='task'>
@@ -216,9 +233,7 @@ const Column = (props) => {
                     <TaskInput
                       type='text'
                       value={newTask.content}
-                      onChange={(e) =>
-                        setNewTask({ ...newTask, content: e.target.value })
-                      }
+                      onChange={handleInputChange}
                       placeholder='Your Task'
                     />
                   </Label>

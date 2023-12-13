@@ -90,9 +90,10 @@ p {
 }
 
 .containerTaskBoxTask {
+  width: 188px;
   border: 1px solid rgb(0, 0, 0);
-  border-radius: 2px;
-  padding: 8px;
+  border-radius: 10px;
+  padding: 10px;
   margin: 5px;
   background-color: rgb(204, 204, 204);
 }
