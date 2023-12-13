@@ -6,10 +6,11 @@ import isPropValid from '@emotion/is-prop-valid';
 
 const Container = styled.div`
   height: ${(props) => props.dynamicHeight}px;
-  border: 1px solid rgb(0, 0, 0);
+  width: 220px;
+  box-shadow: 0px 1px 1px #091e4240, 0px 0px 1px #091e424f  ;
   border-radius: 10px;
   margin: 5px;
-  background-color: grey;
+  background-color: #f1f2f4;
   display: flex;
   flex-direction: column;
 `;
@@ -24,28 +25,29 @@ const TaskList = styled.div.withConfig({
 })`
   transition: background-color 0.2s ease;
   background-color: ${(props) =>
-    props.isDraggingOver ? 'lightsalmon' : 'grey'};
+    props.isDraggingOver ? 'lightsalmon' : '#f1f2f4'};
   flex-grow: 1;
   border-radius: 10px;
 `;
 
 const ButtonAdd = styled.button`
-  background-color: #04aa6d; /* Green */
+  background-color: rgb(12, 102, 228); /* Green */
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   color: white;
-  padding: 8px;
+  padding: 12px;
   margin: 5px;
+  margin-bottom: 7px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  width: 210px;
+  width: 208px;
   cursor: pointer;
 `;
 
 const ButtonAccept = styled.button`
-  background-color: #04aa6d; /* Green */
+  background-color: rgb(12, 102, 228); /* Green */
   border: none;
   border-radius: 5px;
   color: white;
@@ -95,6 +97,7 @@ const Label = styled.label`
 `;
 
 const LabelTitle = styled.p`
+  color: black;
   padding: 8px;
 `;
 
@@ -103,6 +106,7 @@ const Column = (props) => {
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [taskCount, setTaskCount] = useState(props.tasks.length);
   const [containerHeight, setContainerHeight] = useState(100);
+  console.log(containerHeight);
 
   const updateListHeight = useCallback(() => {
     const totalTaskHeight = props.tasks.reduce(
@@ -199,29 +203,33 @@ const Column = (props) => {
               {...provided.draggableProps}
               ref={provided.innerRef}
               $isModalOpen={showModal}
-              dynamicHeight={containerHeight}
+              $dynamicHeight={containerHeight}
             >
               <Title {...provided.dragHandleProps}>{props.column.title}</Title>
               <Droppable droppableId={props.column.id} type='task'>
                 {(provided, snapshot) => (
-                  <TaskList
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    isDraggingOver={snapshot.isDraggingOver}
-                  >
-                    {props.tasks.map((task, index) => (
-                      <Task
-                        key={task.id}
-                        task={task}
-                        index={index}
-                        onDelete={handleDeleteTask}
-                      />
-                    ))}
-                    {provided.placeholder}
-                    <ButtonAdd onClick={() => setShowModal(true)}>
-                      Add Task
-                    </ButtonAdd>
-                  </TaskList>
+                  <div className='flex'>
+                    <TaskList
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      isDraggingOver={snapshot.isDraggingOver}
+                    >
+                      {props.tasks.map((task, index) => (
+                        <Task
+                          key={task.id}
+                          task={task}
+                          index={index}
+                          onDelete={handleDeleteTask}
+                        />
+                      ))}
+                      {provided.placeholder}
+                    </TaskList>
+                    <div>
+                      <ButtonAdd onClick={() => setShowModal(true)}>
+                        Add Task
+                      </ButtonAdd>
+                    </div>
+                  </div>
                 )}
               </Droppable>
             </Container>
