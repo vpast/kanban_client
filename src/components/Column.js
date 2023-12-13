@@ -101,10 +101,7 @@ const Column = (props) => {
 
   const updateListHeight = useCallback(() => {
     if (taskCount > 4) {
-      // Вычисляйте новую высоту в зависимости от количества задач
       const newHeight = 260 + (taskCount - 4) * 44; // Например, увеличиваем высоту на 50 пикселей за каждую задачу
-  
-      // Устанавливаем новую высоту списка
       setContainerHeight(`${newHeight}px`);
     }
   }, [taskCount, setContainerHeight]);
