@@ -1,12 +1,13 @@
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import Task from './Task';
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import isPropValid from '@emotion/is-prop-valid';
 
 const Container = styled.div`
-  height: ${(props) => (props.isModalOpen ? '300px' : '200px')};
+  height: ${(props) => (props.isModalOpen ? '300px' : '260px')};
   border: 1px solid rgb(0, 0, 0);
-  border-radius: 2px;
+  border-radius: 10px;
   margin: 5px;
   background-color: grey;
   display: flex;
@@ -18,11 +19,14 @@ const Title = styled.div`
   padding: 8px;
 `;
 
-const TaskList = styled.div`
+const TaskList = styled.div.withConfig({
+  shouldForwardProp: (prop) => isPropValid(prop),
+})`
   transition: background-color 0.2s ease;
   background-color: ${(props) =>
     props.isDraggingOver ? 'lightsalmon' : 'grey'};
   flex-grow: 1;
+  border-radius: 10px;
 `;
 
 const ButtonAdd = styled.button`
@@ -91,8 +95,25 @@ const LabelTitle = styled.p`
 const Column = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '' });
+  const [taskCount, setTaskCount] = useState(props.tasks.length);
+  const initialHeight = 260 + (props.tasks.length - 4) * 50;
+  const [containerHeight, setContainerHeight] = useState(`${initialHeight}`);
 
-  // console.log(props.column)
+  const updateListHeight = useCallback(() => {
+    if (taskCount > 4) {
+      // Вычисляйте новую высоту в зависимости от количества задач
+      const newHeight = 260 + (taskCount - 4) * 44; // Например, увеличиваем высоту на 50 пикселей за каждую задачу
+  
+      // Устанавливаем новую высоту списка
+      setContainerHeight(`${newHeight}px`);
+    }
+  }, [taskCount, setContainerHeight]);
+
+  useEffect(() => {
+    updateListHeight();
+  }, [taskCount, updateListHeight]);
+
+  // console.log(props.tasks.length);
 
   const handleAddTask = () => {
     if (!props.tasks) {
@@ -122,6 +143,7 @@ const Column = (props) => {
     }));
 
     setNewTask({ content: '' });
+    setTaskCount((prevCount) => prevCount + 1);
     setShowModal(false);
   };
 
@@ -151,67 +173,68 @@ const Column = (props) => {
         },
       },
     }));
+    setTaskCount((prevCount) => Math.max(0, prevCount - 1));
   };
 
   return (
     <>
       <Draggable draggableId={props.column.id} index={props.index}>
         {(provided) => (
-          <Container
-            {...provided.draggableProps}
-            ref={provided.innerRef}
-            $isModalOpen={showModal}
-          >
-            <Title {...provided.dragHandleProps}>{props.column.title}</Title>
-            <Droppable droppableId={props.column.id} type='task'>
-              {(provided, snapshot) => (
-                <TaskList
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  $isDraggingOver={snapshot.isDraggingOver}
-                >
-                  {props.tasks.map(
-                    (task, index) => (
-                      (
-                        <Task
-                          key={task.id}
-                          task={task}
-                          index={index}
-                          onDelete={handleDeleteTask}
-                        />
-                      )
-                    )
-                  )}
-                  {provided.placeholder}
-                  <ButtonAdd onClick={() => setShowModal(true)}>
-                    Add Task
-                  </ButtonAdd>
-
-                  {showModal && (
-                    <div className='modal'>
-                      <Label>
-                        <LabelTitle>New Task:</LabelTitle>
-                        <TaskInput
-                          type='text'
-                          value={newTask.content}
-                          onChange={(e) =>
-                            setNewTask({ ...newTask, content: e.target.value })
-                          }
-                          placeholder='Your Task'
-                        />
-                      </Label>
-                      <div className='buttonsPlacement'>
-                        <ButtonAccept onClick={handleAddTask}>Add</ButtonAccept>
-                        <ButtonDecline onClick={() => setShowModal(false)}>
-                          Back
-                        </ButtonDecline>
-                      </div>
-                    </div>
-                  )}
-                </TaskList>
+          <div>
+            <Container
+              {...provided.draggableProps}
+              ref={provided.innerRef}
+              $isModalOpen={showModal}
+              style={{ height: containerHeight }}
+            >
+              <Title {...provided.dragHandleProps}>{props.column.title}</Title>
+              <Droppable droppableId={props.column.id} type='task'>
+                {(provided, snapshot) => (
+                  <TaskList
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    isDraggingOver={snapshot.isDraggingOver}
+                  >
+                    {props.tasks.map((task, index) => (
+                      <Task
+                        key={task.id}
+                        task={task}
+                        index={index}
+                        onDelete={handleDeleteTask}
+                      />
+                    ))}
+                    {provided.placeholder}
+                    <ButtonAdd onClick={() => setShowModal(true)}>
+                      Add Task
+                    </ButtonAdd>
+                  </TaskList>
+                )}
+              </Droppable>
+            </Container>
+            <div>
+              {showModal && (
+                <div className='modal'>
+                  <Label>
+                    <LabelTitle>New Task:</LabelTitle>
+                    <TaskInput
+                      type='text'
+                      value={newTask.content}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, content: e.target.value })
+                      }
+                      placeholder='Your Task'
+                    />
+                  </Label>
+                  <div className='buttonsPlacement'>
+                    <ButtonAccept onClick={handleAddTask}>Add</ButtonAccept>
+                    <ButtonDecline onClick={() => setShowModal(false)}>
+                      Back
+                    </ButtonDecline>
+                  </div>
+                </div>
               )}
-            </Droppable>
-          </Container>
+            </div>
+          </div>
         )}
       </Draggable>
     </>
