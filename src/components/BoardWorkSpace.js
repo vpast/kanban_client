@@ -3,39 +3,25 @@ import Column from './Column';
 import Tasks from '../Tasks';
 import { useState } from 'react';
 import styled from 'styled-components';
+import {
+  AddListButton,
+  Label,
+  LabelTitle,
+  TaskInput,
+  ButtonAccept,
+  ButtonDecline,
+  Modal,
+} from '../css/StyledComponents';
 
 const Container = styled.div`
   display: flex;
 `;
 
-const AddListButton = styled.button`
-  background-color: #ffffff3d;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 8px;
-  margin: 5px;
-  display: flex;
-  align-items: center;
-  width: 208px;
-  height: 42px;
-
-  &:hover {
-    background-color: #ffffff8d;
-    color: black;
-  }
-
-  &::before {
-    content: '+ ';
-    font-size: 20px;
-    margin-right: 6px;
-  }
-`;
-
 const BoardWorkSpace = () => {
   const [state, setState] = useState(Tasks);
+  const [showAddListModal, setShowAddListModal] = useState(false);
+  const [newListTitle, setNewListTitle] = useState('');
+  const [isAddButtonVisible, setAddButtonVisible] = useState(true);
 
   let onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
@@ -52,16 +38,16 @@ const BoardWorkSpace = () => {
     }
 
     if (type === 'column') {
-      const newColumnOrder = Array.from(state.columnOrder)
-      newColumnOrder.splice(source.index, 1)
-      newColumnOrder.splice(destination.index, 0, draggableId)
+      const newColumnOrder = Array.from(state.columnOrder);
+      newColumnOrder.splice(source.index, 1);
+      newColumnOrder.splice(destination.index, 0, draggableId);
 
       const newState = {
         ...state,
-        columnOrder: newColumnOrder
-      }
-      setState(newState)
-      return
+        columnOrder: newColumnOrder,
+      };
+      setState(newState);
+      return;
     }
 
     const columnStart = state.columns[source.droppableId];
@@ -119,7 +105,30 @@ const BoardWorkSpace = () => {
     setState(newState);
   };
 
-  const handleAddList = () => {};
+  const handleNewAddListTitle = (event) => {
+    setNewListTitle(event.target.value);
+  };
+
+  const handleAddList = () => {
+    const newColumn = {
+      id: `column-${Date.now()}`,
+      title: newListTitle,
+      taskId: [],
+    };
+
+    const newState = {
+      ...state,
+      columns: {
+        ...state.columns,
+        [newColumn.id]: newColumn,
+      },
+      columnOrder: [...state.columnOrder, newColumn.id],
+    };
+    updateState(newState);
+
+    setShowAddListModal(false);
+    setNewListTitle('');
+  };
 
   return (
     <>
@@ -132,27 +141,77 @@ const BoardWorkSpace = () => {
               type='column'
             >
               {(provided) => (
-                <Container {...provided.droppableProps} ref={provided.innerRef}>
-                  {state.columnOrder.map((columnId, index) => {
-                    const column = state.columns[columnId];
-                    const tasks = column.taskIds.map(
-                      (taskId) => state.tasks[taskId]
-                    );
-                    return (
-                      <Column
-                        key={column.id}
-                        column={column}
-                        tasks={tasks}
-                        index={index}
-                        updateData={updateState}
-                      />
-                    );
-                  })}
-                  {provided.placeholder}
-                  <AddListButton onClick={handleAddList}>Add List</AddListButton>
-                </Container>
+                <div>
+                  <Container
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {state.columnOrder.map((columnId, index) => {
+                      const column = state.columns[columnId];
+                      console.log(column);
+                      if (column.taskIds === undefined) {
+                        column.taskIds = [];
+                      }
+                      const tasks = column.taskIds.map(
+                        (taskId) => state.tasks[taskId]
+                      );
+                      return (
+                        <Column
+                          key={column.id}
+                          column={column}
+                          tasks={tasks}
+                          index={index}
+                          updateData={updateState}
+                        />
+                      );
+                    })}
+                    {provided.placeholder}
+                    {showAddListModal && (
+                      <div>
+                        <Modal>
+                          <Label>
+                            <LabelTitle>New List :</LabelTitle>
+                            <TaskInput
+                              type='text'
+                              value={newListTitle}
+                              onChange={handleNewAddListTitle}
+                              placeholder='List Title'
+                            />
+                          </Label>
+                          <div className='buttonsPlacement'>
+                            <ButtonAccept
+                              onClick={() => {
+                                handleAddList();
+                                setAddButtonVisible(true);
+                              }}
+                            >
+                              Add
+                            </ButtonAccept>
+                            <ButtonDecline
+                              onClick={() => {
+                                setShowAddListModal(false);
+                                setAddButtonVisible(true);
+                              }}
+                            >
+                              Back
+                            </ButtonDecline>
+                          </div>
+                        </Modal>
+                      </div>
+                    )}
+                  </Container>
+                </div>
               )}
             </Droppable>
+            <AddListButton
+              isVisible={isAddButtonVisible}
+              onClick={() => {
+                setShowAddListModal(true);
+                setAddButtonVisible(false);
+              }}
+            >
+              Add List
+            </AddListButton>
           </DragDropContext>
         </div>
       </div>

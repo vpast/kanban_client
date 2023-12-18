@@ -1,127 +1,30 @@
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import Task from './Task';
-import styled from 'styled-components';
 import { useState, useEffect, useCallback } from 'react';
-import isPropValid from '@emotion/is-prop-valid';
-
-const Container = styled.div`
-  height: ${(props) => props.dynamicHeight}px;
-  width: 220px;
-  box-shadow: 0px 1px 1px #091e4240, 0px 0px 1px #091e424f;
-  border-radius: 10px;
-  margin: 5px;
-  background-color: #f1f2f4;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Title = styled.div`
-  font-weight: 600;
-  padding: 8px;
-`;
-
-const TaskList = styled.div.withConfig({
-  shouldForwardProp: (prop) => isPropValid(prop),
-})`
-  transition: background-color 0.2s ease;
-  background-color: ${(props) =>
-    props.isDraggingOver ? 'lightsalmon' : '#f1f2f4'};
-  flex-grow: 1;
-  border-radius: 10px;
-`;
-
-const ButtonAdd = styled.button`
-  background-color: rgb(12, 102, 228);
-  border: none;
-  border-radius: 10px;
-  color: white;
-  padding: 12px;
-  margin: 5px;
-  margin-bottom: 7px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  width: 208px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: lightsalmon;
-    color: black;
-  }
-`;
-
-const ButtonAccept = styled.button`
-  background-color: rgb(12, 102, 228);
-  border: none;
-  border-radius: 5px;
-  color: white;
-  padding: 8px;
-  margin: 5px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  width: 100px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgb(0, 206, 0);
-    color: black;
-  }
-`;
-
-const ButtonDecline = styled.button`
-  background-color: rgb(12, 102, 228);
-  border: none;
-  border-radius: 5px;
-  color: white;
-  padding: 8px;
-  margin: 5px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  width: 100px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #fc4949;
-    color: black;
-  }
-`;
-
-const TaskInput = styled.textarea`
-  border-radius: 5px;
-  width: 190px;
-  height: 30px;
-  padding: 8px;
-  margin: 5px;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  resize: none;
-  height: auto;
-  min-height: 30px;
-  max-height: 300px;
-`;
-
-const Label = styled.label`
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
-`;
-
-const LabelTitle = styled.p`
-  color: black;
-  padding: 8px;
-`;
+import {
+  Container,
+  Title,
+  TaskList,
+  ButtonAdd,
+  ButtonAccept,
+  ButtonDecline,
+  Label,
+  LabelTitle,
+  TaskInput,
+  Modal,
+  RenameButton,
+  TitleFlex,
+  RenameFlex,
+} from '../css/StyledComponents';
 
 const Column = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [taskCount, setTaskCount] = useState(props.tasks.length);
   const [containerHeight, setContainerHeight] = useState(100);
-  console.log(containerHeight);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newColumnName, setNewColumnName] = useState({ title: '' });
+  // console.log(containerHeight);
 
   const updateListHeight = useCallback(() => {
     const totalTaskHeight = props.tasks.reduce(
@@ -143,7 +46,13 @@ const Column = (props) => {
     textarea.style.height = textarea.scrollHeight + 'px';
   };
 
-  const handleInputChange = (event) => {
+  const handleTitleInputChange = (event) => {
+    setNewColumnName(event.target.value);
+    console.log(newColumnName);
+    // autoExpandTextarea(event.target);
+  };
+
+  const handleTaskInputChange = (event) => {
     setNewTask({ ...newTask, content: event.target.value });
     autoExpandTextarea(event.target);
   };
@@ -178,6 +87,7 @@ const Column = (props) => {
     setNewTask({ content: '' });
     setTaskCount((prevCount) => prevCount + 1);
     setShowModal(false);
+    updateListHeight();
   };
 
   const handleDeleteTask = (taskId) => {
@@ -207,6 +117,34 @@ const Column = (props) => {
       },
     }));
     setTaskCount((prevCount) => Math.max(0, prevCount - 1));
+
+    updateListHeight();
+  };
+
+  const handleRenameColumn = () => {
+    setIsEditing(true);
+    setNewColumnName(props.column.title);
+  };
+
+  const handleAcceptRename = () => {
+    props.updateData((prevData) => ({
+      ...prevData,
+      columns: {
+        ...prevData.columns,
+        [props.column.id]: {
+          ...prevData.columns[props.column.id],
+          title: newColumnName,
+        },
+      },
+    }));
+
+    setIsEditing(false);
+    setNewColumnName('');
+  };
+
+  const handleDeclineRename = () => {
+    setIsEditing(false);
+    setNewColumnName('');
   };
 
   return (
@@ -220,7 +158,33 @@ const Column = (props) => {
               $isModalOpen={showModal}
               $dynamicHeight={containerHeight}
             >
-              <Title {...provided.dragHandleProps}>{props.column.title}</Title>
+              <TitleFlex {...provided.dragHandleProps}>
+                {isEditing ? (
+                  <RenameFlex>
+                    <TaskInput
+                      type='text'
+                      value={newColumnName}
+                      placeholder='New Title'
+                      onChange={handleTitleInputChange}
+                    />
+                    <div className='buttonsPlacement'>
+                      <ButtonAccept onClick={handleAcceptRename}>
+                        Edit
+                      </ButtonAccept>
+                      <ButtonDecline onClick={handleDeclineRename}>
+                        Back
+                      </ButtonDecline>
+                    </div>
+                  </RenameFlex>
+                ) : (
+                  <>
+                    <Title>{props.column.title}</Title>
+                    <RenameButton onClick={handleRenameColumn}>
+                      Edit
+                    </RenameButton>
+                  </>
+                )}
+              </TitleFlex>
               <Droppable droppableId={props.column.id} type='task'>
                 {(provided, snapshot) => (
                   <div className='flex'>
@@ -250,13 +214,13 @@ const Column = (props) => {
             </Container>
             <div>
               {showModal && (
-                <div className='modal'>
+                <Modal>
                   <Label>
-                    <LabelTitle>New Task:</LabelTitle>
+                    <LabelTitle>New Task :</LabelTitle>
                     <TaskInput
                       type='text'
                       value={newTask.content}
-                      onChange={handleInputChange}
+                      onChange={handleTaskInputChange}
                       placeholder='Your Task'
                     />
                   </Label>
@@ -266,13 +230,12 @@ const Column = (props) => {
                       Back
                     </ButtonDecline>
                   </div>
-                </div>
+                </Modal>
               )}
             </div>
           </div>
         )}
       </Draggable>
-      
     </>
   );
 };
