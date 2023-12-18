@@ -8,6 +8,32 @@ const Container = styled.div`
   display: flex;
 `;
 
+const AddListButton = styled.button`
+  background-color: #ffffff3d;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+  margin: 5px;
+  display: flex;
+  align-items: center;
+  width: 208px;
+  height: 42px;
+
+  &:hover {
+    background-color: #ffffff8d;
+    color: black;
+  }
+
+  &::before {
+    content: '+ ';
+    font-size: 20px;
+    margin-right: 6px;
+  }
+`;
+
 const BoardWorkSpace = () => {
   const [state, setState] = useState(Tasks);
 
@@ -93,6 +119,8 @@ const BoardWorkSpace = () => {
     setState(newState);
   };
 
+  const handleAddList = () => {};
+
   return (
     <>
       <div className='workSpacePadding'>
@@ -121,6 +149,7 @@ const BoardWorkSpace = () => {
                     );
                   })}
                   {provided.placeholder}
+                  <AddListButton onClick={handleAddList}>Add List</AddListButton>
                 </Container>
               )}
             </Droppable>

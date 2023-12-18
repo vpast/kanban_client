@@ -7,7 +7,7 @@ import isPropValid from '@emotion/is-prop-valid';
 const Container = styled.div`
   height: ${(props) => props.dynamicHeight}px;
   width: 220px;
-  box-shadow: 0px 1px 1px #091e4240, 0px 0px 1px #091e424f  ;
+  box-shadow: 0px 1px 1px #091e4240, 0px 0px 1px #091e424f;
   border-radius: 10px;
   margin: 5px;
   background-color: #f1f2f4;
@@ -31,7 +31,7 @@ const TaskList = styled.div.withConfig({
 `;
 
 const ButtonAdd = styled.button`
-  background-color: rgb(12, 102, 228); /* Green */
+  background-color: rgb(12, 102, 228);
   border: none;
   border-radius: 10px;
   color: white;
@@ -44,10 +44,15 @@ const ButtonAdd = styled.button`
   font-size: 16px;
   width: 208px;
   cursor: pointer;
+
+  &:hover {
+    background-color: lightsalmon;
+    color: black;
+  }
 `;
 
 const ButtonAccept = styled.button`
-  background-color: rgb(12, 102, 228); /* Green */
+  background-color: rgb(12, 102, 228);
   border: none;
   border-radius: 5px;
   color: white;
@@ -59,10 +64,15 @@ const ButtonAccept = styled.button`
   font-size: 16px;
   width: 100px;
   cursor: pointer;
+
+  &:hover {
+    background-color: rgb(0, 206, 0);
+    color: black;
+  }
 `;
 
 const ButtonDecline = styled.button`
-  background-color: #fc4949; /* Green */
+  background-color: rgb(12, 102, 228);
   border: none;
   border-radius: 5px;
   color: white;
@@ -74,6 +84,11 @@ const ButtonDecline = styled.button`
   font-size: 16px;
   width: 100px;
   cursor: pointer;
+
+  &:hover {
+    background-color: #fc4949;
+    color: black;
+  }
 `;
 
 const TaskInput = styled.textarea`
@@ -257,6 +272,7 @@ const Column = (props) => {
           </div>
         )}
       </Draggable>
+      
     </>
   );
 };

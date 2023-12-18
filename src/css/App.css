@@ -1,6 +1,8 @@
 body {
   /* background-image: url(../assets/wallpaperflare.com_wallpaper.jpg); */
   background-image: url("https://trello-backgrounds.s3.amazonaws.com/SharedBackground/2400x1600/fd7ad95b8dd4a50dba5b75400169da6d/photo-1565116305319-4c87a7a4e368.jpg");
+  background-repeat: no-repeat;
+  background-position: 80% 20%;
   font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Noto Sans,Ubuntu,Droid Sans,Helvetica Neue,sans-serif;
   margin: 0;
 }
