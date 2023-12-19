@@ -148,7 +148,6 @@ const BoardWorkSpace = () => {
                   >
                     {state.columnOrder.map((columnId, index) => {
                       const column = state.columns[columnId];
-                      console.log(column);
                       if (column.taskIds === undefined) {
                         column.taskIds = [];
                       }

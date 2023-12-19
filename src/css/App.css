@@ -40,22 +40,7 @@ p {
   font-weight: 400;
 }
 
-.boardList ul {
-  list-style: none;
-  margin: 0;
-  padding-left: 25px;
-  padding-top: 10px;
-}
 
-.boardList li {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.boardList a {
-  text-decoration: none;
-  color: white;
-}
 
 .header {
   background: hsl(191,51.4%,23%);

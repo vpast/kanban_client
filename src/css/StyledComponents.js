@@ -1,6 +1,39 @@
 import isPropValid from '@emotion/is-prop-valid';
 import styled from 'styled-components';
 
+//BoardList.js
+
+export const StyleBoardListFlex = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
+export const StyleBoardList = styled.ul`
+  list-style: none;
+  margin: 0;
+  margin-top: 15px;
+  padding: 0;
+  text-align: center;
+  font-weight: 600;
+`
+
+export const StyleBoardListItem = styled.li`
+  width: 185px;
+  height: 42px;
+  border-radius: 10px;
+  margin: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+
+  > div {
+    padding-bottom: 3px;
+  }
+`
+
 // Boardworkspace.js
 
 export const AddListButton = styled.button.withConfig({
@@ -20,7 +53,6 @@ export const AddListButton = styled.button.withConfig({
   height: 42px;
 
   display: ${(props) => (props.isVisible ? 'block' : 'none')};
-  transition-property: all;
 
   &:hover {
     background-color: #ffffff8d;
