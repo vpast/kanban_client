@@ -1,5 +1,9 @@
 import { Draggable } from '@hello-pangea/dnd';
-import { TaskContainer, TaskContent, DeleteButton } from '../css/StyledComponents';
+import {
+  TaskContainer,
+  TaskContent,
+  DeleteButton,
+} from '../css/StyledComponents';
 
 const Task = (props) => {
   const { task, index, onDelete } = props;

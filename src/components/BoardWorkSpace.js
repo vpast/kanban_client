@@ -1,7 +1,7 @@
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import Column from './Column';
 import Tasks from '../Tasks';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import {
   AddListButton,
@@ -22,6 +22,21 @@ const BoardWorkSpace = () => {
   const [showAddListModal, setShowAddListModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
+  const [tasksData, setTasksData] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/tasks')
+      .then((res) => res.json())
+      .then((data) => {
+        setTasksData(data);
+      });
+  }, [setTasksData]);
+
+  // tasksData.map((task) => {
+  //   console.log(task);
+  // });
+
+  // console.log(state)
 
   let onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
@@ -151,9 +166,14 @@ const BoardWorkSpace = () => {
                       if (column.taskIds === undefined) {
                         column.taskIds = [];
                       }
-                      const tasks = column.taskIds.map(
-                        (taskId) => state.tasks[taskId]
-                      );
+                      // const tasks = column.taskIds.map(
+                      //   (taskId) => state.tasks[taskId]
+                      //   );
+                      // console.log(column, column.taskIds, tasksData.id)
+                      const tasks = tasksData
+                      .filter((task) => column.taskIds.includes(task.id))
+                      .map((filteredTask) => state.tasks[filteredTask.id]);
+                      // console.log(tasks)
                       return (
                         <Column
                           key={column.id}

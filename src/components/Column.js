@@ -24,7 +24,6 @@ const Column = (props) => {
   const [containerHeight, setContainerHeight] = useState(100);
   const [isEditing, setIsEditing] = useState(false);
   const [newColumnName, setNewColumnName] = useState({ title: '' });
-  // console.log(containerHeight);
 
   const updateListHeight = useCallback(() => {
     const totalTaskHeight = props.tasks.reduce(
