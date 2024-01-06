@@ -22,7 +22,18 @@ const BoardWorkSpace = () => {
   const [showAddListModal, setShowAddListModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
+  const [columnsData, setColumnsData] = useState([]);
   const [tasksData, setTasksData] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/columns')
+      .then((res) => res.json())
+      .then((data) => {
+        setColumnsData(data);
+      });
+  }, [setColumnsData]);
+
+  // columnsData.map((column) => console.log(column.id));
 
   useEffect(() => {
     fetch('http://localhost:5000/tasks')
@@ -32,11 +43,7 @@ const BoardWorkSpace = () => {
       });
   }, [setTasksData]);
 
-  // tasksData.map((task) => {
-  //   console.log(task);
-  // });
-
-  // console.log(state)
+  console.log(state);
 
   let onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
@@ -161,29 +168,36 @@ const BoardWorkSpace = () => {
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
-                    {state.columnOrder.map((columnId, index) => {
-                      const column = state.columns[columnId];
-                      if (column.taskIds === undefined) {
-                        column.taskIds = [];
-                      }
-                      // const tasks = column.taskIds.map(
-                      //   (taskId) => state.tasks[taskId]
-                      //   );
-                      // console.log(column, column.taskIds, tasksData.id)
-                      const tasks = tasksData
-                      .filter((task) => column.taskIds.includes(task.id))
-                      .map((filteredTask) => state.tasks[filteredTask.id]);
-                      // console.log(tasks)
-                      return (
-                        <Column
-                          key={column.id}
-                          column={column}
-                          tasks={tasks}
-                          index={index}
-                          updateData={updateState}
-                        />
-                      );
-                    })}
+                    {/* {state.columnOrder.map((columnId, index) => { */}
+                     
+
+                      {columnsData.map((column, index) => {
+                        console.log(column);
+  
+                          // if (column.taskIds === undefined) {
+                          //   column.taskIds = [];
+                          // }
+                          // const tasks = column.taskIds.map(
+                          //   (taskId) => state.tasks[taskId]
+                          //   );
+                          // console.log(column, column.taskIds, tasksData.id)
+                          
+                          const tasks = tasksData
+                            .filter((task) => column.taskIds.includes(task.id))
+                            .map((filteredTask) => state.tasks[filteredTask.id]);
+                          
+                            // console.log(tasks)
+                        return (
+                          <Column
+                            key={column.id}
+                            column={column}
+                            tasks={tasks}
+                            index={index}
+                            updateData={updateState}
+                          />
+                        );
+                      })}
+                    {/* })} */}
                     {provided.placeholder}
                     {showAddListModal && (
                       <div>
