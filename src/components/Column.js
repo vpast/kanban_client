@@ -25,6 +25,8 @@ const Column = (props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newColumnName, setNewColumnName] = useState({ title: '' });
 
+  // console.log(props.tasks)
+
   const updateListHeight = useCallback(() => {
     const totalTaskHeight = props.tasks.reduce(
       (total, task) => total + task.height,
@@ -62,26 +64,29 @@ const Column = (props) => {
       return;
     }
 
-    props.updateData((prevData) => ({
-      ...prevData,
-      tasks: {
-        ...prevData.tasks,
-        [`task-${Date.now()}`]: {
-          id: `task-${Date.now()}`,
-          content: newTask.content,
+    props.updateData((prevData) => {
+      console.log(newTask)
+      return{
+        ...prevData,
+        tasks: {
+          ...prevData.tasks,
+          [`task-${Date.now()}`]: {
+            id: `task-${Date.now()}`,
+            content: newTask.content,
+          },
         },
-      },
-      columns: {
-        ...prevData.columns,
-        [props.column.id]: {
-          ...prevData.columns[props.column.id],
-          taskIds: [
-            ...prevData.columns[props.column.id].taskIds,
-            `task-${Date.now()}`,
-          ],
+        columns: {
+          ...prevData.columns,
+          [props.column.id]: {
+            ...prevData.columns[props.column.id],
+            taskIds: [
+              ...prevData.columns[props.column.id].taskIds,
+              `task-${Date.now()}`,
+            ],
+          },
         },
-      },
-    }));
+      }
+    });
 
     setNewTask({ content: '' });
     setTaskCount((prevCount) => prevCount + 1);

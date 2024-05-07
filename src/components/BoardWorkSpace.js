@@ -43,7 +43,7 @@ const BoardWorkSpace = () => {
       });
   }, [setTasksData]);
 
-  console.log(state);
+  // console.log(state);
 
   let onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
@@ -168,36 +168,32 @@ const BoardWorkSpace = () => {
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
-                    {/* {state.columnOrder.map((columnId, index) => { */}
-                     
+                    {columnsData.map((column, index) => {
+                      // console.log(column);
 
-                      {columnsData.map((column, index) => {
-                        console.log(column);
-  
-                          // if (column.taskIds === undefined) {
-                          //   column.taskIds = [];
-                          // }
-                          // const tasks = column.taskIds.map(
-                          //   (taskId) => state.tasks[taskId]
-                          //   );
-                          // console.log(column, column.taskIds, tasksData.id)
-                          
-                          const tasks = tasksData
-                            .filter((task) => column.taskIds.includes(task.id))
-                            .map((filteredTask) => state.tasks[filteredTask.id]);
-                          
-                            // console.log(tasks)
-                        return (
-                          <Column
-                            key={column.id}
-                            column={column}
-                            tasks={tasks}
-                            index={index}
-                            updateData={updateState}
-                          />
-                        );
-                      })}
-                    {/* })} */}
+                      // if (column.taskIds === undefined) {
+                      //   column.taskIds = [];
+                      // }
+                      // const tasks = column.taskIds.map(
+                      //   (taskId) => state.tasks[taskId]
+                      //   );
+                      // console.log(column, column.taskIds, tasksData.id)
+
+                      const tasks = tasksData
+                        .filter((task) => column.taskIds.includes(task.id))
+                        .map((filteredTask) => state.tasks[filteredTask.id]);
+
+                      // console.log(tasks)
+                      return (
+                        <Column
+                          key={column.id}
+                          column={column}
+                          tasks={tasks}
+                          index={index}
+                          updateData={updateState}
+                        />
+                      );
+                    })}
                     {provided.placeholder}
                     {showAddListModal && (
                       <div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import BoardHeader from '../components/BoardHeader';
 import BoardList from '../components/BoardList';
 import BoardWorkSpace from '../components/BoardWorkSpace';
