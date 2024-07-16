@@ -18,6 +18,8 @@ import {
 } from '../css/StyledComponents';
 
 const Column = (props) => {
+  // console.log('Rendering Column:', props.column.id, props.tasks);
+  // console.log(props)
   const [showModal, setShowModal] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [taskCount, setTaskCount] = useState(props.tasks.length);
@@ -58,40 +60,79 @@ const Column = (props) => {
     autoExpandTextarea(event.target);
   };
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (!props.tasks) {
       console.error('Data is undefined.');
       return;
     }
 
-    props.updateData((prevData) => {
-      console.log(newTask)
-      return{
-        ...prevData,
-        tasks: {
-          ...prevData.tasks,
-          [`task-${Date.now()}`]: {
-            id: `task-${Date.now()}`,
-            content: newTask.content,
-          },
-        },
-        columns: {
-          ...prevData.columns,
-          [props.column.id]: {
-            ...prevData.columns[props.column.id],
-            taskIds: [
-              ...prevData.columns[props.column.id].taskIds,
-              `task-${Date.now()}`,
-            ],
-          },
-        },
-      }
-    });
+    const taskId = 'task-' + Date.now();
+    const newTaskObject = {
+      id: taskId,
+      content: newTask.content,
+    };
 
-    setNewTask({ content: '' });
-    setTaskCount((prevCount) => prevCount + 1);
-    setShowModal(false);
-    updateListHeight();
+    try {
+      // Отправляем новую задачу на сервер
+      const response = await fetch('http://localhost:5000/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          task: newTaskObject,
+          columnId: props.column.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add task');
+      }
+
+      const result = await response.json();
+
+      //   let taskId = 'task-' + Date.now();
+      //   prevData['tasks'][taskId] = {
+      //     id: taskId,
+      //     content: newTask.content,
+      //   };
+      //   prevData['columns'][props.column.id]['taskIds'].push(taskId);
+      //   console.log(prevData);
+      //   return prevData;
+      // });
+
+      
+      props.updateData((prevData) => {
+        console.log(prevData)
+        const updatedTaskIds = [
+          ...(prevData.columns[props.column.id]?.taskIds || []),
+          result.task.id,
+        ];
+
+        return {
+          ...prevData,
+          tasks: {
+            ...prevData.tasks,
+            [result.task.id]: result.task,
+          },
+          columns: {
+            ...prevData.columns,
+            [props.column.id]: {
+              ...prevData.columns[props.column.id],
+              taskIds: updatedTaskIds,
+            },
+          },
+        };
+      });
+
+      setNewTask({ content: '' });
+      setTaskCount((prevCount) => prevCount + 1);
+      setShowModal(false);
+      updateListHeight();
+      props.fetchTasksData();
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   const handleDeleteTask = (taskId) => {
@@ -197,14 +238,17 @@ const Column = (props) => {
                       {...provided.droppableProps}
                       isDraggingOver={snapshot.isDraggingOver}
                     >
-                      {props.tasks.map((task, index) => (
-                        <Task
-                          key={task.id}
-                          task={task}
-                          index={index}
-                          onDelete={handleDeleteTask}
-                        />
-                      ))}
+                      {props.tasks.map((task, index) => {
+                        // console.log(task)
+                        return (
+                          <Task
+                            key={task.id}
+                            task={task}
+                            index={index}
+                            onDelete={handleDeleteTask}
+                          />
+                        );
+                      })}
                       {provided.placeholder}
                     </TaskList>
                     <div>

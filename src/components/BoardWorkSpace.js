@@ -1,6 +1,6 @@
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import Column from './Column';
-import Tasks from '../Tasks';
+// import Tasks from '../Tasks';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import {
@@ -18,31 +18,46 @@ const Container = styled.div`
 `;
 
 const BoardWorkSpace = () => {
-  const [state, setState] = useState(Tasks);
+  const [state, setState] = useState({ columns: {}, columnOrder: [] });
   const [showAddListModal, setShowAddListModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
   const [columnsData, setColumnsData] = useState([]);
   const [tasksData, setTasksData] = useState([]);
 
-  useEffect(() => {
+  const fetchColumnsData = () => {
     fetch('http://localhost:5000/columns')
       .then((res) => res.json())
       .then((data) => {
         setColumnsData(data);
       });
-  }, [setColumnsData]);
+  };
 
   // columnsData.map((column) => console.log(column.id));
 
-  useEffect(() => {
+  const fetchTasksData = () => {
     fetch('http://localhost:5000/tasks')
       .then((res) => res.json())
       .then((data) => {
+        const tasks = {};
+        data.forEach((task) => {
+          tasks[task.id] = task; // Преобразование массива задач в объект для удобного доступа по id
+        });
+        setState((prevState) => ({
+          ...prevState,
+          tasks: tasks,
+        }));
         setTasksData(data);
       });
-  }, [setTasksData]);
+      console.log("i am worked")
+  };
 
+  useEffect(() => {
+    fetchColumnsData();
+    fetchTasksData();
+  }, []);
+
+  // console.log(tasksData)
   // console.log(state);
 
   let onDragEnd = (result) => {
@@ -124,6 +139,7 @@ const BoardWorkSpace = () => {
 
   const updateState = (newState) => {
     // console.log('Updating state in BoardWorkSpace:', newState);
+    // console.log(state, newState)
     setState(newState);
   };
 
@@ -179,10 +195,20 @@ const BoardWorkSpace = () => {
                       //   );
                       // console.log(column, column.taskIds, tasksData.id)
 
+                      if (!column || !column.taskIds) {
+                        return []; // Вернуть пустой массив, если нет данных о задачах
+                      }
                       const tasks = tasksData
-                        .filter((task) => column.taskIds.includes(task.id))
-                        .map((filteredTask) => state.tasks[filteredTask.id]);
+                        .filter((task) => {
+                          // console.log(task.id)
+                          return column.taskIds.includes(task.id);
+                        })
+                        .map((filteredTask) => {
+                          // console.log(state);
+                          return state.tasks && state.tasks[filteredTask.id];
+                        });
 
+                      // console.log(tasksData, tasks)
                       // console.log(tasks)
                       return (
                         <Column
@@ -191,6 +217,7 @@ const BoardWorkSpace = () => {
                           tasks={tasks}
                           index={index}
                           updateData={updateState}
+                          fetchTasksData={fetchTasksData}
                         />
                       );
                     })}
