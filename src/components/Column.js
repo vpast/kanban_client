@@ -73,7 +73,6 @@ const Column = (props) => {
     };
 
     try {
-      // Отправляем новую задачу на сервер
       const response = await fetch('http://localhost:5000/tasks', {
         method: 'POST',
         headers: {
@@ -91,45 +90,12 @@ const Column = (props) => {
 
       const result = await response.json();
 
-      //   let taskId = 'task-' + Date.now();
-      //   prevData['tasks'][taskId] = {
-      //     id: taskId,
-      //     content: newTask.content,
-      //   };
-      //   prevData['columns'][props.column.id]['taskIds'].push(taskId);
-      //   console.log(prevData);
-      //   return prevData;
-      // });
-
-      
-      props.updateData((prevData) => {
-        console.log(prevData)
-        const updatedTaskIds = [
-          ...(prevData.columns[props.column.id]?.taskIds || []),
-          result.task.id,
-        ];
-
-        return {
-          ...prevData,
-          tasks: {
-            ...prevData.tasks,
-            [result.task.id]: result.task,
-          },
-          columns: {
-            ...prevData.columns,
-            [props.column.id]: {
-              ...prevData.columns[props.column.id],
-              taskIds: updatedTaskIds,
-            },
-          },
-        };
-      });
+      props.updateData(result, props.column.id);
 
       setNewTask({ content: '' });
       setTaskCount((prevCount) => prevCount + 1);
       setShowModal(false);
       updateListHeight();
-      props.fetchTasksData();
     } catch (error) {
       console.error('Error adding task:', error);
     }

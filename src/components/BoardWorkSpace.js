@@ -24,6 +24,7 @@ const BoardWorkSpace = () => {
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
   const [columnsData, setColumnsData] = useState([]);
   const [tasksData, setTasksData] = useState([]);
+  // const [columnOrder, setColumnOrder] = useState([]);
 
   const fetchColumnsData = () => {
     fetch('http://localhost:5000/columns')
@@ -49,7 +50,6 @@ const BoardWorkSpace = () => {
         }));
         setTasksData(data);
       });
-      console.log("i am worked")
   };
 
   useEffect(() => {
@@ -57,8 +57,9 @@ const BoardWorkSpace = () => {
     fetchTasksData();
   }, []);
 
-  // console.log(tasksData)
-  // console.log(state);
+  // console.log(tasksData);
+  // console.log(columnsData);
+
 
   let onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
@@ -139,8 +140,8 @@ const BoardWorkSpace = () => {
 
   const updateState = (newState) => {
     // console.log('Updating state in BoardWorkSpace:', newState);
-    // console.log(state, newState)
-    setState(newState);
+    console.log(state, newState)
+    setState({...newState});
   };
 
   const handleNewAddListTitle = (event) => {
@@ -168,6 +169,27 @@ const BoardWorkSpace = () => {
     setNewListTitle('');
   };
 
+  const onUpdateTasksData = (newTask, columnId) => {
+    // console.log('here onUpdateTasksData ', newTask, columnsData, tasksData);
+    setColumnsData((prevData) => {
+      const { id: newTaskid } = newTask.task;
+      const columnData = prevData.find((item) => item.id === columnId);
+      const { taskIds = [] } = columnData;
+      const updateTaskIds = [...taskIds, newTaskid];
+      
+      return prevData.map((item) => {
+        if (item.id === columnId) {
+          return {
+            ...item,
+            taskIds: updateTaskIds
+          }
+        }
+        return item;
+      })
+    });
+    setTasksData((prevData) => [...prevData, newTask.task])
+  }
+
   return (
     <>
       <div className='workSpacePadding'>
@@ -185,7 +207,6 @@ const BoardWorkSpace = () => {
                     ref={provided.innerRef}
                   >
                     {columnsData.map((column, index) => {
-                      // console.log(column);
 
                       // if (column.taskIds === undefined) {
                       //   column.taskIds = [];
@@ -197,16 +218,18 @@ const BoardWorkSpace = () => {
 
                       if (!column || !column.taskIds) {
                         return []; // Вернуть пустой массив, если нет данных о задачах
+                        
                       }
+
                       const tasks = tasksData
                         .filter((task) => {
                           // console.log(task.id)
                           return column.taskIds.includes(task.id);
                         })
-                        .map((filteredTask) => {
-                          // console.log(state);
-                          return state.tasks && state.tasks[filteredTask.id];
-                        });
+                        // .map((filteredTask) => {
+                        //   // console.log(state);
+                        //   return state.tasks && state.tasks[filteredTask.id];
+                        // });
 
                       // console.log(tasksData, tasks)
                       // console.log(tasks)
@@ -216,7 +239,7 @@ const BoardWorkSpace = () => {
                           column={column}
                           tasks={tasks}
                           index={index}
-                          updateData={updateState}
+                          updateData={onUpdateTasksData}
                           fetchTasksData={fetchTasksData}
                         />
                       );
