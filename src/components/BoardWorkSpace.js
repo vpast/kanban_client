@@ -60,7 +60,6 @@ const BoardWorkSpace = () => {
   // console.log(tasksData);
   // console.log(columnsData);
 
-
   let onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
 
@@ -138,57 +137,58 @@ const BoardWorkSpace = () => {
     setState(newState);
   };
 
-  const updateState = (newState) => {
-    // console.log('Updating state in BoardWorkSpace:', newState);
-    console.log(state, newState)
-    setState({...newState});
-  };
+  // const updateState = (newState) => {
+  //   console.log(state, newState)
+  //   setState({...newState});
+  // };
 
   const handleNewAddListTitle = (event) => {
     setNewListTitle(event.target.value);
   };
 
   const handleAddList = () => {
-    const newColumn = {
-      id: `column-${Date.now()}`,
-      title: newListTitle,
-      taskId: [],
-    };
-
-    const newState = {
-      ...state,
-      columns: {
-        ...state.columns,
-        [newColumn.id]: newColumn,
-      },
-      columnOrder: [...state.columnOrder, newColumn.id],
-    };
-    updateState(newState);
 
     setShowAddListModal(false);
     setNewListTitle('');
   };
 
-  const onUpdateTasksData = (newTask, columnId) => {
-    // console.log('here onUpdateTasksData ', newTask, columnsData, tasksData);
+  const onUpdateColumnTitle = (newTitle, columnId) => {
     setColumnsData((prevData) => {
-      const { id: newTaskid } = newTask.task;
-      const columnData = prevData.find((item) => item.id === columnId);
-      const { taskIds = [] } = columnData;
-      const updateTaskIds = [...taskIds, newTaskid];
-      
+      const { title: newColumnTitle } = newTitle;
+      const updateColumnTitle = newColumnTitle;
+
       return prevData.map((item) => {
         if (item.id === columnId) {
           return {
             ...item,
-            taskIds: updateTaskIds
-          }
+            title: updateColumnTitle,
+          };
+        }
+        console.log(item);
+        return item;
+      });
+    });
+  };
+
+  const onUpdateTasksData = (newTask, columnId) => {
+    setColumnsData((prevData) => {
+      const { id: newTaskId } = newTask.task;
+      const columnData = prevData.find((item) => item.id === columnId);
+      const { taskIds = [] } = columnData;
+      const updateTaskIds = [...taskIds, newTaskId];
+
+      return prevData.map((item) => {
+        if (item.id === columnId) {
+          return {
+            ...item,
+            taskIds: updateTaskIds,
+          };
         }
         return item;
-      })
+      });
     });
-    setTasksData((prevData) => [...prevData, newTask.task])
-  }
+    setTasksData((prevData) => [...prevData, newTask.task]);
+  };
 
   return (
     <>
@@ -207,39 +207,22 @@ const BoardWorkSpace = () => {
                     ref={provided.innerRef}
                   >
                     {columnsData.map((column, index) => {
-
-                      // if (column.taskIds === undefined) {
-                      //   column.taskIds = [];
-                      // }
-                      // const tasks = column.taskIds.map(
-                      //   (taskId) => state.tasks[taskId]
-                      //   );
-                      // console.log(column, column.taskIds, tasksData.id)
-
                       if (!column || !column.taskIds) {
-                        return []; // Вернуть пустой массив, если нет данных о задачах
-                        
+                        return [];
                       }
 
-                      const tasks = tasksData
-                        .filter((task) => {
-                          // console.log(task.id)
-                          return column.taskIds.includes(task.id);
-                        })
-                        // .map((filteredTask) => {
-                        //   // console.log(state);
-                        //   return state.tasks && state.tasks[filteredTask.id];
-                        // });
+                      const tasks = tasksData.filter((task) => {
+                        return column.taskIds.includes(task.id);
+                      });
 
-                      // console.log(tasksData, tasks)
-                      // console.log(tasks)
                       return (
                         <Column
                           key={column.id}
                           column={column}
                           tasks={tasks}
                           index={index}
-                          updateData={onUpdateTasksData}
+                          updateTasks={onUpdateTasksData}
+                          updateColumnTitle={onUpdateColumnTitle}
                           fetchTasksData={fetchTasksData}
                         />
                       );

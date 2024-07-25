@@ -19,7 +19,7 @@ import {
 
 const Column = (props) => {
   // console.log('Rendering Column:', props.column.id, props.tasks);
-  // console.log(props)
+  // console.log(props.column.title)
   const [showModal, setShowModal] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [taskCount, setTaskCount] = useState(props.tasks.length);
@@ -50,9 +50,48 @@ const Column = (props) => {
   };
 
   const handleTitleInputChange = (event) => {
+    // if (props.column.title === )
     setNewColumnName(event.target.value);
     console.log(newColumnName);
     // autoExpandTextarea(event.target);
+  };
+
+  const handleRenameColumn = () => {
+    setIsEditing(true);
+    setNewColumnName(props.column.title);
+  };
+
+  const handleAcceptRename = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/updateColumnTitle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: props.column.id,  // ID колонки, которую нужно обновить
+          title: newColumnName  // Новый заголовок колонки
+        })
+      })
+      
+      const result = await response.json();
+      console.log(result);
+
+      props.updateColumnTitle(result, props.column.id)
+
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+    
+
+
+    setIsEditing(false);
+    setNewColumnName('');
+  };
+
+  const handleDeclineRename = () => {
+    setIsEditing(false);
+    setNewColumnName('');
   };
 
   const handleTaskInputChange = (event) => {
@@ -90,7 +129,7 @@ const Column = (props) => {
 
       const result = await response.json();
 
-      props.updateData(result, props.column.id);
+      props.updateTasks(result, props.column.id);
 
       setNewTask({ content: '' });
       setTaskCount((prevCount) => prevCount + 1);
@@ -102,9 +141,7 @@ const Column = (props) => {
   };
 
   const handleDeleteTask = (taskId) => {
-    // console.log('Deleting task with ID:', taskId);
 
-    // console.log('Calling updateData in Column.js with tasks and column:', props.tasks, props.column);
     if (!props.tasks) {
       console.error('Data is undefined.');
       return;
@@ -114,7 +151,7 @@ const Column = (props) => {
 
     delete updatedTasks[taskId];
 
-    props.updateData((prevData) => ({
+    props.updateTasks((prevData) => ({
       ...prevData,
       tasks: updatedTasks,
       columns: {
@@ -130,32 +167,6 @@ const Column = (props) => {
     setTaskCount((prevCount) => Math.max(0, prevCount - 1));
 
     updateListHeight();
-  };
-
-  const handleRenameColumn = () => {
-    setIsEditing(true);
-    setNewColumnName(props.column.title);
-  };
-
-  const handleAcceptRename = () => {
-    props.updateData((prevData) => ({
-      ...prevData,
-      columns: {
-        ...prevData.columns,
-        [props.column.id]: {
-          ...prevData.columns[props.column.id],
-          title: newColumnName,
-        },
-      },
-    }));
-
-    setIsEditing(false);
-    setNewColumnName('');
-  };
-
-  const handleDeclineRename = () => {
-    setIsEditing(false);
-    setNewColumnName('');
   };
 
   return (
