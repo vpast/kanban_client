@@ -194,7 +194,6 @@ const BoardWorkSpace = () => {
             title: updateColumnTitle,
           };
         }
-        console.log(item);
         return item;
       });
     });
@@ -238,6 +237,12 @@ const BoardWorkSpace = () => {
     });
     setTasksData((prevData) => prevData.filter((task) => task.id !== taskId));
   };
+
+  const onDeleteList = (columnId) => {
+    setColumnsData((prevData) => {
+      return prevData.filter((column) => column.id !== columnId);
+    });
+  };
   
 
   return (
@@ -273,6 +278,7 @@ const BoardWorkSpace = () => {
                           index={index}
                           onAddTask={onAddTask}
                           onDeleteTask={onDeleteTask}
+                          onDeleteList={onDeleteList}
                           updateColumnTitle={onUpdateColumnTitle}
                           fetchTasksData={fetchTasksData}
                         />

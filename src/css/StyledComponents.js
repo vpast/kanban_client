@@ -189,6 +189,27 @@ export const ButtonDecline = styled.button`
   }
 `;
 
+export const ButtonDeleteList = styled.button`
+  background-color: rgb(12, 102, 228);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 8px;
+  margin: 5px;
+  margin-bottom: 7px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 208px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #fc4949;
+    color: black;
+  }
+`;
+
 export const TaskInput = styled.textarea`
   border-radius: 5px;
   width: 190px;

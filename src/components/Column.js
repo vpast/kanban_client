@@ -8,6 +8,7 @@ import {
   ButtonAdd,
   ButtonAccept,
   ButtonDecline,
+  ButtonDeleteList,
   Label,
   LabelTitle,
   TaskInput,
@@ -52,7 +53,6 @@ const Column = (props) => {
   const handleTitleInputChange = (event) => {
     // if (props.column.title === )
     setNewColumnName(event.target.value);
-    console.log(newColumnName);
     // autoExpandTextarea(event.target);
   };
 
@@ -75,7 +75,6 @@ const Column = (props) => {
       });
 
       const result = await response.json();
-      console.log(result);
 
       props.updateColumnTitle(result, props.column.id);
     } catch (error) {
@@ -164,6 +163,32 @@ const Column = (props) => {
     updateListHeight();
   };
 
+  const handleDeleteList = async () => {
+    if (!props.column) {
+      console.error('Data is undefined.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/columns/${props.column.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete column: ${response.statusText}`);
+      }
+
+      props.onDeleteList(props.column.id);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+
+    setIsEditing(false);
+  }
+
   return (
     <>
       <Draggable draggableId={props.column.id} index={props.index}>
@@ -192,6 +217,7 @@ const Column = (props) => {
                         Back
                       </ButtonDecline>
                     </div>
+                    <ButtonDeleteList onClick={handleDeleteList}>Delete List</ButtonDeleteList>
                   </RenameFlex>
                 ) : (
                   <>
