@@ -42,7 +42,7 @@ const BoardWorkSpace = () => {
       .then((data) => {
         const tasks = {};
         data.forEach((task) => {
-          tasks[task.id] = task; // Преобразование массива задач в объект для удобного доступа по id
+          tasks[task.id] = task;
         });
         setState((prevState) => ({
           ...prevState,
@@ -146,7 +146,37 @@ const BoardWorkSpace = () => {
     setNewListTitle(event.target.value);
   };
 
-  const handleAddList = () => {
+  const handleAddList = async () => {
+    const columnId = 'column-' + Date.now();
+    const newColumnObject = {
+      id: columnId,
+      title: newListTitle,
+      taskIds: [],
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/columns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          column: newColumnObject,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add column');
+      }
+
+      const result = await response.json();
+      console.log(result);
+
+      setColumnsData((prevData) => [...prevData, newColumnObject]);
+
+    } catch (error) {
+      console.error('Error adding column:', error);
+    }
 
     setShowAddListModal(false);
     setNewListTitle('');
