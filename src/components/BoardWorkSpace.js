@@ -200,7 +200,7 @@ const BoardWorkSpace = () => {
     });
   };
 
-  const onUpdateTasksData = (newTask, columnId) => {
+  const onAddTask = (newTask, columnId) => {
     setColumnsData((prevData) => {
       const { id: newTaskId } = newTask.task;
       const columnData = prevData.find((item) => item.id === columnId);
@@ -219,6 +219,26 @@ const BoardWorkSpace = () => {
     });
     setTasksData((prevData) => [...prevData, newTask.task]);
   };
+
+  const onDeleteTask = (taskId, columnId) => {
+    setColumnsData((prevData) => {
+      const columnData = prevData.find((item) => item.id === columnId);
+      const { taskIds = [] } = columnData;
+      const updateTaskIds = taskIds.filter((id) => id !== taskId);
+  
+      return prevData.map((item) => {
+        if (item.id === columnId) {
+          return {
+            ...item,
+            taskIds: updateTaskIds,
+          };
+        }
+        return item;
+      });
+    });
+    setTasksData((prevData) => prevData.filter((task) => task.id !== taskId));
+  };
+  
 
   return (
     <>
@@ -251,7 +271,8 @@ const BoardWorkSpace = () => {
                           column={column}
                           tasks={tasks}
                           index={index}
-                          updateTasks={onUpdateTasksData}
+                          onAddTask={onAddTask}
+                          onDeleteTask={onDeleteTask}
                           updateColumnTitle={onUpdateColumnTitle}
                           fetchTasksData={fetchTasksData}
                         />

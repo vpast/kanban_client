@@ -66,24 +66,21 @@ const Column = (props) => {
       const response = await fetch('http://localhost:5000/updateColumnTitle', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: props.column.id,  // ID колонки, которую нужно обновить
-          title: newColumnName  // Новый заголовок колонки
-        })
-      })
-      
+          id: props.column.id, // ID колонки, которую нужно обновить
+          title: newColumnName, // Новый заголовок колонки
+        }),
+      });
+
       const result = await response.json();
       console.log(result);
 
-      props.updateColumnTitle(result, props.column.id)
-
+      props.updateColumnTitle(result, props.column.id);
     } catch (error) {
       console.error('Error adding task:', error);
     }
-    
-
 
     setIsEditing(false);
     setNewColumnName('');
@@ -129,7 +126,7 @@ const Column = (props) => {
 
       const result = await response.json();
 
-      props.updateTasks(result, props.column.id);
+      props.onAddTask(result, props.column.id);
 
       setNewTask({ content: '' });
       setTaskCount((prevCount) => prevCount + 1);
@@ -140,32 +137,30 @@ const Column = (props) => {
     }
   };
 
-  const handleDeleteTask = (taskId) => {
-
+  const handleDeleteTask = async (taskId) => {
     if (!props.tasks) {
       console.error('Data is undefined.');
       return;
     }
 
-    const updatedTasks = { ...props.tasks };
-
-    delete updatedTasks[taskId];
-
-    props.updateTasks((prevData) => ({
-      ...prevData,
-      tasks: updatedTasks,
-      columns: {
-        ...prevData.columns,
-        [props.column.id]: {
-          ...prevData.columns[props.column.id],
-          taskIds: prevData.columns[props.column.id].taskIds.filter(
-            (id) => id !== taskId
-          ),
+    try {
+      const response = await fetch(`http://localhost:5000/tasks/${taskId}?columnId=${props.column.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      },
-    }));
-    setTaskCount((prevCount) => Math.max(0, prevCount - 1));
+      });
 
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
+      }
+
+      props.onDeleteTask(taskId, props.column.id);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+
+    setTaskCount((prevCount) => Math.max(0, prevCount - 1));
     updateListHeight();
   };
 
