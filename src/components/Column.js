@@ -26,6 +26,7 @@ const Column = (props) => {
   const [taskCount, setTaskCount] = useState(props.tasks.length);
   const [containerHeight, setContainerHeight] = useState(100);
   const [isEditing, setIsEditing] = useState(false);
+  const [isColumnListEditing, setIsColumnListEditing] = useState(true);
   const [newColumnName, setNewColumnName] = useState({ title: '' });
 
   // console.log(props.tasks)
@@ -130,6 +131,7 @@ const Column = (props) => {
       setNewTask({ content: '' });
       setTaskCount((prevCount) => prevCount + 1);
       setShowModal(false);
+      setIsColumnListEditing(true);
       updateListHeight();
     } catch (error) {
       console.error('Error adding task:', error);
@@ -143,12 +145,15 @@ const Column = (props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/tasks/${taskId}?columnId=${props.column.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/tasks/${taskId}?columnId=${props.column.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to delete task');
@@ -170,12 +175,15 @@ const Column = (props) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/columns/${props.column.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/columns/${props.column.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to delete column: ${response.statusText}`);
@@ -187,7 +195,7 @@ const Column = (props) => {
     }
 
     setIsEditing(false);
-  }
+  };
 
   return (
     <>
@@ -217,7 +225,9 @@ const Column = (props) => {
                         Back
                       </ButtonDecline>
                     </div>
-                    <ButtonDeleteList onClick={handleDeleteList}>Delete List</ButtonDeleteList>
+                    <ButtonDeleteList onClick={handleDeleteList}>
+                      Delete List
+                    </ButtonDeleteList>
                   </RenameFlex>
                 ) : (
                   <>
@@ -250,7 +260,13 @@ const Column = (props) => {
                       {provided.placeholder}
                     </TaskList>
                     <div>
-                      <ButtonAdd onClick={() => setShowModal(true)}>
+                      <ButtonAdd
+                        isColumnEditing={isColumnListEditing}
+                        onClick={() => {
+                          setShowModal(true);
+                          setIsColumnListEditing(false);
+                        }}
+                      >
                         Add Task
                       </ButtonAdd>
                     </div>
@@ -271,8 +287,17 @@ const Column = (props) => {
                     />
                   </Label>
                   <div className='buttonsPlacement'>
-                    <ButtonAccept onClick={handleAddTask}>Add</ButtonAccept>
-                    <ButtonDecline onClick={() => setShowModal(false)}>
+                    <ButtonAccept
+                      onClick={handleAddTask}
+                    >
+                      Add
+                    </ButtonAccept>
+                    <ButtonDecline
+                      onClick={() => {
+                        setShowModal(false);
+                        setIsColumnListEditing(true);
+                      }}
+                    >
                       Back
                     </ButtonDecline>
                   </div>

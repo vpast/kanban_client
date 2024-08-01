@@ -126,7 +126,9 @@ export const TaskList = styled.div.withConfig({
   border-radius: 10px;
 `;
 
-export const ButtonAdd = styled.button`
+export const ButtonAdd = styled.button.withConfig({
+  shouldForwardProp: (prop) => isPropValid(prop),
+})`
   background-color: rgb(12, 102, 228);
   border: none;
   border-radius: 10px;
@@ -140,6 +142,8 @@ export const ButtonAdd = styled.button`
   font-size: 16px;
   width: 208px;
   cursor: pointer;
+
+  display: ${(props) => (props.isColumnEditing ? 'block' : 'none')};
 
   &:hover {
     background-color: lightsalmon;
