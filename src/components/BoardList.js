@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import TextareaAutosize from 'react-textarea-autosize';
 import styled from 'styled-components';
 import {
   ButtonAdd,
@@ -8,33 +9,28 @@ import {
   ButtonAccept,
   ButtonDecline,
   Label,
-  TaskInput,
   Modal,
 } from '../css/StyledComponents';
 
 const ButtonAddBoard = styled(ButtonAdd)`
   width: 185px;
+
+  display: ${(props) => (props.isBoardListEditing ? 'none' : 'block')};
 `;
 
 const BoardListModal = styled(Modal)`
   box-shadow: none;
   border-radius: 0;
   background-color: transparent;
-  width: 185px;
-`
-
-const TaskIinputBoardList = styled(TaskInput)`
-  width: auto;
-`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
 const BoardList = ({ boards, currentBoard, switchBoard, addBoard }) => {
   const [showModal, setShowModal] = useState(false);
   const [newBoardTitle, setNewBoardTitle] = useState('');
-
-  const autoExpandTextarea = (textarea) => {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-  };
+  const [isBoardListEditing, setIsBoardListEditing] = useState(false);
 
   const handleAddBoard = () => {
     if (newBoardTitle.trim() !== '') {
@@ -42,13 +38,12 @@ const BoardList = ({ boards, currentBoard, switchBoard, addBoard }) => {
       setShowModal(false);
       setNewBoardTitle(''); // Очистка значения после добавления доски
     }
-  }
+  };
 
   const handleBoradNameInputChange = (event) => {
     setNewBoardTitle(event.target.value);
-    autoExpandTextarea(event.target);
   };
-  
+
   return (
     <>
       <StyleBoardListFlex className='boardList'>
@@ -64,20 +59,33 @@ const BoardList = ({ boards, currentBoard, switchBoard, addBoard }) => {
             </StyleBoardListItem>
           ))}
         </StyleBoardList>
-        <ButtonAddBoard onClick={() => setShowModal(true)}>Add Board</ButtonAddBoard>
+        <ButtonAddBoard
+          isBoardListEditing={isBoardListEditing}
+          onClick={() => {
+            setShowModal(true);
+            setIsBoardListEditing(true);
+          }}
+        >
+          Add Board
+        </ButtonAddBoard>
         {showModal && (
           <BoardListModal>
             <Label>
-              <TaskIinputBoardList
-                type='text'
+              <TextareaAutosize
+                className='textAreaAutoSizeList'
+                placeholder='Your Board Name'
                 value={newBoardTitle}
                 onChange={handleBoradNameInputChange}
-                placeholder='Your Board Name'
               />
             </Label>
             <div className='buttonsPlacement'>
               <ButtonAccept onClick={handleAddBoard}>Add</ButtonAccept>
-              <ButtonDecline onClick={() => setShowModal(false)}>
+              <ButtonDecline
+                onClick={() => {
+                  setShowModal(false);
+                  setIsBoardListEditing(false);
+                }}
+              >
                 Back
               </ButtonDecline>
             </div>

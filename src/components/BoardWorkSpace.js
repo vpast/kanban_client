@@ -3,11 +3,11 @@ import Column from './Column';
 // import Tasks from '../Tasks';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import TextareaAutosize from 'react-textarea-autosize';
 import {
   AddListButton,
   Label,
   LabelTitle,
-  TaskInput,
   ButtonAccept,
   ButtonDecline,
   Modal,
@@ -87,8 +87,11 @@ const BoardWorkSpace = () => {
       return;
     }
 
-    const columnStart = state.columns[source.droppableId];
-    const columnFinish = state.columns[destination.droppableId];
+    // const columnStart = state.columns[source.droppableId];
+    const columnStart = columnsData[source.droppableId];
+    console.log(columnsData[source.droppableId]);
+    // const columnFinish = state.columns[destination.droppableId];
+    const columnFinish = columnsData[destination.droppableId];
 
     if (columnStart === columnFinish) {
       const newTaskIds = Array.from(columnStart.taskIds);
@@ -173,7 +176,6 @@ const BoardWorkSpace = () => {
       console.log(result);
 
       setColumnsData((prevData) => [...prevData, newColumnObject]);
-
     } catch (error) {
       console.error('Error adding column:', error);
     }
@@ -224,7 +226,7 @@ const BoardWorkSpace = () => {
       const columnData = prevData.find((item) => item.id === columnId);
       const { taskIds = [] } = columnData;
       const updateTaskIds = taskIds.filter((id) => id !== taskId);
-  
+
       return prevData.map((item) => {
         if (item.id === columnId) {
           return {
@@ -243,7 +245,6 @@ const BoardWorkSpace = () => {
       return prevData.filter((column) => column.id !== columnId);
     });
   };
-  
 
   return (
     <>
@@ -290,11 +291,11 @@ const BoardWorkSpace = () => {
                         <Modal>
                           <Label>
                             <LabelTitle>New List :</LabelTitle>
-                            <TaskInput
-                              type='text'
+                            <TextareaAutosize
+                              className='textAreaAutoSizeColumn'
+                              placeholder='New Title'
                               value={newListTitle}
                               onChange={handleNewAddListTitle}
-                              placeholder='List Title'
                             />
                           </Label>
                           <div className='buttonsPlacement'>

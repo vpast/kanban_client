@@ -1,6 +1,7 @@
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import Task from './Task';
 import { useState, useEffect, useCallback } from 'react';
+import TextareaAutosize from 'react-textarea-autosize';
 import {
   Container,
   Title,
@@ -11,12 +12,16 @@ import {
   ButtonDeleteList,
   Label,
   LabelTitle,
-  TaskInput,
   Modal,
   RenameButton,
   TitleFlex,
   RenameFlex,
 } from '../css/StyledComponents';
+import styled from 'styled-components';
+
+const TaskButtonAdd = styled(ButtonAdd)`
+display: ${(props) => (props.isColumnEditing ? 'none' : 'block')};
+`;
 
 const Column = (props) => {
   // console.log('Rendering Column:', props.column.id, props.tasks);
@@ -26,7 +31,7 @@ const Column = (props) => {
   const [taskCount, setTaskCount] = useState(props.tasks.length);
   const [containerHeight, setContainerHeight] = useState(100);
   const [isEditing, setIsEditing] = useState(false);
-  const [isColumnListEditing, setIsColumnListEditing] = useState(true);
+  const [isColumnListEditing, setIsColumnListEditing] = useState(false);
   const [newColumnName, setNewColumnName] = useState({ title: '' });
 
   // console.log(props.tasks)
@@ -46,15 +51,13 @@ const Column = (props) => {
 
   // console.log(props.tasks.length);
 
-  const autoExpandTextarea = (textarea) => {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-  };
+  // const autoExpandTextarea = (textarea) => {
+  //   textarea.style.height = 'auto';
+  //   textarea.style.height = textarea.scrollHeight + 'px';
+  // };
 
   const handleTitleInputChange = (event) => {
-    // if (props.column.title === )
     setNewColumnName(event.target.value);
-    // autoExpandTextarea(event.target);
   };
 
   const handleRenameColumn = () => {
@@ -93,7 +96,6 @@ const Column = (props) => {
 
   const handleTaskInputChange = (event) => {
     setNewTask({ ...newTask, content: event.target.value });
-    autoExpandTextarea(event.target);
   };
 
   const handleAddTask = async () => {
@@ -131,7 +133,7 @@ const Column = (props) => {
       setNewTask({ content: '' });
       setTaskCount((prevCount) => prevCount + 1);
       setShowModal(false);
-      setIsColumnListEditing(true);
+      setIsColumnListEditing(false);
       updateListHeight();
     } catch (error) {
       console.error('Error adding task:', error);
@@ -211,8 +213,8 @@ const Column = (props) => {
               <TitleFlex {...provided.dragHandleProps}>
                 {isEditing ? (
                   <RenameFlex>
-                    <TaskInput
-                      type='text'
+                    <TextareaAutosize
+                      className='textAreaAutoSizeColumn'
                       value={newColumnName}
                       placeholder='New Title'
                       onChange={handleTitleInputChange}
@@ -260,15 +262,15 @@ const Column = (props) => {
                       {provided.placeholder}
                     </TaskList>
                     <div>
-                      <ButtonAdd
+                      <TaskButtonAdd
                         isColumnEditing={isColumnListEditing}
                         onClick={() => {
                           setShowModal(true);
-                          setIsColumnListEditing(false);
+                          setIsColumnListEditing(true);
                         }}
                       >
                         Add Task
-                      </ButtonAdd>
+                      </TaskButtonAdd>
                     </div>
                   </div>
                 )}
@@ -279,23 +281,20 @@ const Column = (props) => {
                 <Modal>
                   <Label>
                     <LabelTitle>New Task :</LabelTitle>
-                    <TaskInput
-                      type='text'
+                    <TextareaAutosize
+                      className='textAreaAutoSizeColumn'
+                      minRows={3}
+                      placeholder='Your Task'
                       value={newTask.content}
                       onChange={handleTaskInputChange}
-                      placeholder='Your Task'
                     />
                   </Label>
                   <div className='buttonsPlacement'>
-                    <ButtonAccept
-                      onClick={handleAddTask}
-                    >
-                      Add
-                    </ButtonAccept>
+                    <ButtonAccept onClick={handleAddTask}>Add</ButtonAccept>
                     <ButtonDecline
                       onClick={() => {
                         setShowModal(false);
-                        setIsColumnListEditing(true);
+                        setIsColumnListEditing(false);
                       }}
                     >
                       Back

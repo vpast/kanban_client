@@ -7,7 +7,7 @@ export const StyleBoardListFlex = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
 
 export const StyleBoardList = styled.ul`
   list-style: none;
@@ -16,7 +16,7 @@ export const StyleBoardList = styled.ul`
   padding: 0;
   text-align: center;
   font-weight: 600;
-`
+`;
 
 export const StyleBoardListItem = styled.li`
   width: 185px;
@@ -28,11 +28,10 @@ export const StyleBoardListItem = styled.li`
   justify-content: center;
   cursor: pointer;
 
-
   > div {
     padding-bottom: 3px;
   }
-`
+`;
 
 // Boardworkspace.js
 
@@ -79,12 +78,12 @@ export const Container = styled.div`
 `;
 
 export const TitleFlex = styled.div`
-display: flex;
-justify-content: space-between;
-flex-wrap: wrap;
-align-items: center;
-cursor: pointer;
-`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  cursor: pointer;
+`;
 
 export const Title = styled.div`
   font-weight: 600;
@@ -92,12 +91,11 @@ export const Title = styled.div`
   margin-left: 2px;
 `;
 
-
 export const RenameFlex = styled.div`
-display: flex;
-flex-direction: column;
-margin-top: 2px;
-`
+  display: flex;
+  flex-direction: column;
+  margin-top: 2px;
+`;
 
 export const RenameButton = styled.button`
   border: none;
@@ -142,8 +140,6 @@ export const ButtonAdd = styled.button.withConfig({
   font-size: 16px;
   width: 208px;
   cursor: pointer;
-
-  display: ${(props) => (props.isColumnEditing ? 'block' : 'none')};
 
   &:hover {
     background-color: lightsalmon;
@@ -212,20 +208,6 @@ export const ButtonDeleteList = styled.button`
     background-color: #fc4949;
     color: black;
   }
-`;
-
-export const TaskInput = styled.textarea`
-  border-radius: 5px;
-  width: 190px;
-  height: 30px;
-  padding: 8px;
-  margin: 5px;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  resize: none;
-  height: auto;
-  min-height: 30px;
-  max-height: 300px;
 `;
 
 export const Modal = styled.div`
