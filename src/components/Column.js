@@ -20,7 +20,8 @@ import {
 import styled from 'styled-components';
 
 const TaskButtonAdd = styled(ButtonAdd)`
-display: ${(props) => (props.isColumnEditing ? 'none' : 'block')};
+  display: ${(props) => (props.isColumnEditing ? 'none' : 'block')};
+  margin-top: auto;
 `;
 
 const Column = (props) => {
@@ -37,11 +38,10 @@ const Column = (props) => {
   // console.log(props.tasks)
 
   const updateListHeight = useCallback(() => {
-    const totalTaskHeight = props.tasks.reduce(
-      (total, task) => total + task.height,
-      0
-    );
+    const taskHeight = 50;
+    const totalTaskHeight = props.tasks.length * taskHeight;
     const newHeight = Math.max(90, totalTaskHeight + 20);
+    console.log('total height:', totalTaskHeight, 'new height', newHeight);
     setContainerHeight(newHeight);
   }, [props.tasks]);
 
@@ -261,20 +261,19 @@ const Column = (props) => {
                       })}
                       {provided.placeholder}
                     </TaskList>
-                    <div>
-                      <TaskButtonAdd
-                        isColumnEditing={isColumnListEditing}
-                        onClick={() => {
-                          setShowModal(true);
-                          setIsColumnListEditing(true);
-                        }}
-                      >
-                        Add Task
-                      </TaskButtonAdd>
-                    </div>
+                    <div></div>
                   </div>
                 )}
               </Droppable>
+              <TaskButtonAdd
+                isColumnEditing={isColumnListEditing}
+                onClick={() => {
+                  setShowModal(true);
+                  setIsColumnListEditing(true);
+                }}
+              >
+                Add Task
+              </TaskButtonAdd>
             </Container>
             <div>
               {showModal && (

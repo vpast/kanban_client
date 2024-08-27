@@ -67,8 +67,8 @@ export const AddListButton = styled.button.withConfig({
 // Column.js
 
 export const Container = styled.div`
-  height: ${(props) => props.dynamicHeight}px;
   width: 220px;
+  max-height: 90vh;
   box-shadow: 0px 1px 1px #091e4240, 0px 0px 1px #091e424f;
   border-radius: 10px;
   margin: 5px;
@@ -117,11 +117,18 @@ export const RenameButton = styled.button`
 export const TaskList = styled.div.withConfig({
   shouldForwardProp: (prop) => isPropValid(prop),
 })`
+  max-height: 80vh;
   transition: background-color 0.2s ease;
   background-color: ${(props) =>
     props.isDraggingOver ? 'lightsalmon' : '#f1f2f4'};
   flex-grow: 1;
+  /* overflow-y: auto; */
+  /* overflow-x: hidden; */
   border-radius: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
 `;
 
 export const ButtonAdd = styled.button.withConfig({
