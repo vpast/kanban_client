@@ -36,7 +36,7 @@ const BoardList = ({ boards, currentBoard, switchBoard, addBoard }) => {
     if (newBoardTitle.trim() !== '') {
       addBoard(newBoardTitle);
       setShowModal(false);
-      setNewBoardTitle(''); // Очистка значения после добавления доски
+      setNewBoardTitle('');
     }
   };
 

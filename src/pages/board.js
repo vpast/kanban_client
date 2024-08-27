@@ -19,18 +19,20 @@ const Board = () => {
 
   return (
     <>
-      <BoardHeader />
-      <BoardList
-        boards={boards}
-        currentBoard={currentBoard}
-        switchBoard={switchBoard}
-        addBoard={addBoard}
-      />
-      <BoardWorkSpace
-        boards={boards}
-        currentBoard={currentBoard}
-        switchBoard={switchBoard}
-      />
+      <div className='root backgroundImage'>
+        <BoardHeader />
+        <BoardList
+          boards={boards}
+          currentBoard={currentBoard}
+          switchBoard={switchBoard}
+          addBoard={addBoard}
+        />
+        <BoardWorkSpace
+          boards={boards}
+          currentBoard={currentBoard}
+          switchBoard={switchBoard}
+        />
+      </div>
     </>
   );
 };
