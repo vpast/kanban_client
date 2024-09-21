@@ -9,7 +9,7 @@
     "@fontsource/roboto": "^5.0.13",
     "@hello-pangea/dnd": "^16.6.0",
     "@reduxjs/toolkit": "^2.2.6",
-    "axios": "^1.7.2",
+    "axios": "^1.7.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "buffer": "^6.0.3",
