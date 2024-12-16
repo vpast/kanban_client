@@ -41,7 +41,6 @@ const Column = (props) => {
     const taskHeight = 50;
     const totalTaskHeight = props.tasks.length * taskHeight;
     const newHeight = Math.max(90, totalTaskHeight + 20);
-    console.log('total height:', totalTaskHeight, 'new height', newHeight);
     setContainerHeight(newHeight);
   }, [props.tasks]);
 
