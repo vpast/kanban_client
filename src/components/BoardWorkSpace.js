@@ -134,6 +134,8 @@ const BoardWorkSpace = () => {
       return;
     }
 
+    console.log("Column Start:", columnStart)
+
     const startTaskIds = Array.from(columnStart.taskIds);
     startTaskIds.splice(source.index, 1);
     const newStart = {
