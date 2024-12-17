@@ -88,10 +88,9 @@ const BoardWorkSpace = () => {
       return;
     }
 
-    // const columnStart = state.columns[source.droppableId];
     const columnStart = columnsData.find(column => column.id === source.droppableId);
     console.log(columnStart);
-    // const columnFinish = state.columns[destination.droppableId];
+
     const columnFinish = columnsData.find(column => column.id === destination.droppableId);
     console.log(columnFinish);
     
@@ -105,19 +104,8 @@ const BoardWorkSpace = () => {
         taskIds: newTaskIds,
       };
 
-      // const newState = {
-      //   ...state,
-      //   columns: {
-      //     ...state.columns,
-      //     [newColumn.id]: newColumn,
-      //   },
-      // };
-
-      // setState(newState);
-
       setColumnsData(prevData => prevData.map(col => col.id === updatedColumn.id ? updatedColumn : col));
 
-      // Обновляем колонку на сервере
       try {
         await fetch(`http://localhost:5000/columns/${updatedColumn.id}`, {
           method: 'PUT',
@@ -134,8 +122,6 @@ const BoardWorkSpace = () => {
       return;
     }
 
-    console.log("Column Start:", columnStart)
-
     const startTaskIds = Array.from(columnStart.taskIds);
     startTaskIds.splice(source.index, 1);
     const newStart = {
@@ -150,23 +136,12 @@ const BoardWorkSpace = () => {
       taskIds: finishTaskIds,
     };
 
-    // const newState = {
-    //   ...state,
-    //   columns: {
-    //     ...state.columns,
-    //     [newStart.id]: newStart,
-    //     [newFinish.id]: newFinish,
-    //   },
-    // };
-    // setState(newState);
-
     setColumnsData(prevData =>
       prevData.map(col =>
         col.id === newStart.id ? newStart : col.id === newFinish.id ? newFinish : col
       )
     );
   
-    // Обновляем обе колонки на сервере
     try {
       await fetch(`http://localhost:5000/columns/${newStart.id}`, {
         method: 'PUT',
@@ -185,15 +160,8 @@ const BoardWorkSpace = () => {
       });
     } catch (error) {
       console.error('Error updating columns:', error);
-      console.error('Error response:', error.response);
-      console.error('Error response data:', error.response.data);
     }
   };
-
-  // const updateState = (newState) => {
-  //   console.log(state, newState)
-  //   setState({...newState});
-  // };
 
   const handleNewAddListTitle = (event) => {
     setNewListTitle(event.target.value);
@@ -208,7 +176,7 @@ const BoardWorkSpace = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/columns', {
+      const response = await fetch('http://localhost:5000/columns/column', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

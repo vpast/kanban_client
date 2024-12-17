@@ -66,8 +66,8 @@ const Column = (props) => {
 
   const handleAcceptRename = async () => {
     try {
-      const response = await fetch('http://localhost:5000/updateColumnTitle', {
-        method: 'POST',
+      const response = await fetch('http://localhost:5000/columns/updateColumnTitle', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -76,6 +76,8 @@ const Column = (props) => {
           title: newColumnName, // Новый заголовок колонки
         }),
       });
+
+      console.log(props.column.id, newColumnName);
 
       const result = await response.json();
 
