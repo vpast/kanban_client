@@ -18,13 +18,12 @@ const Container = styled.div`
 `;
 
 const BoardWorkSpace = () => {
-  const [state, setState] = useState({ columns: {}, columnOrder: [] });
   const [showAddListModal, setShowAddListModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
   const [columnsData, setColumnsData] = useState([]);
   const [tasksData, setTasksData] = useState([]);
-  // const [columnOrder, setColumnOrder] = useState([]);
+  const [columnOrder, setColumnOrder] = useState([]);
 
   const fetchColumnsData = () => {
     fetch('http://localhost:5000/columns')
@@ -34,26 +33,37 @@ const BoardWorkSpace = () => {
       });
   };
 
+  const fetchColumnOrderData = () => {
+    fetch('http://localhost:5000/columns/order/columnOrder')
+      .then((res) => res.json())
+      .then((data) => {
+        setColumnOrder(data[0].columnOrder);
+        console.log(columnOrder);
+      });
+  };
+
   // columnsData.map((column) => console.log(column.id));
 
   const fetchTasksData = () => {
     fetch('http://localhost:5000/tasks')
       .then((res) => res.json())
       .then((data) => {
-        const tasks = {};
-        data.forEach((task) => {
-          tasks[task.id] = task;
-        });
-        setState((prevState) => ({
-          ...prevState,
-          tasks: tasks,
-        }));
+        // const tasks = {};
+        // data.forEach((task) => {
+        //   tasks[task.id] = task;
+        // });
+        // setState((prevState) => ({
+        //   ...prevState,
+        //   tasks: tasks,
+        // }));
         setTasksData(data);
+        // console.log(tasksData)
       });
   };
 
   useEffect(() => {
     fetchColumnsData();
+    fetchColumnOrderData();
     fetchTasksData();
   }, []);
 
@@ -76,24 +86,26 @@ const BoardWorkSpace = () => {
     }
 
     if (type === 'column') {
-      const newColumnOrder = Array.from(state.columnOrder);
+      const newColumnOrder = Array.from(columnOrder);
       newColumnOrder.splice(source.index, 1);
       newColumnOrder.splice(destination.index, 0, draggableId);
 
-      const newState = {
-        ...state,
-        columnOrder: newColumnOrder,
-      };
-      setState(newState);
+      setColumnOrder(newColumnOrder);
+      updateColumnOrder(newColumnOrder);
+      console.log(newColumnOrder);
       return;
     }
 
-    const columnStart = columnsData.find(column => column.id === source.droppableId);
+    const columnStart = columnsData.find(
+      (column) => column.id === source.droppableId
+    );
     console.log(columnStart);
 
-    const columnFinish = columnsData.find(column => column.id === destination.droppableId);
+    const columnFinish = columnsData.find(
+      (column) => column.id === destination.droppableId
+    );
     console.log(columnFinish);
-    
+
     if (columnStart === columnFinish) {
       const newTaskIds = Array.from(columnStart.taskIds);
       newTaskIds.splice(source.index, 1);
@@ -104,7 +116,11 @@ const BoardWorkSpace = () => {
         taskIds: newTaskIds,
       };
 
-      setColumnsData(prevData => prevData.map(col => col.id === updatedColumn.id ? updatedColumn : col));
+      setColumnsData((prevData) =>
+        prevData.map((col) =>
+          col.id === updatedColumn.id ? updatedColumn : col
+        )
+      );
 
       try {
         await fetch(`http://localhost:5000/columns/${updatedColumn.id}`, {
@@ -113,7 +129,7 @@ const BoardWorkSpace = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            column: updatedColumn
+            column: updatedColumn,
           }),
         });
       } catch (error) {
@@ -129,6 +145,8 @@ const BoardWorkSpace = () => {
       taskIds: startTaskIds,
     };
 
+    console.log("newStart:", newStart);
+
     const finishTaskIds = Array.from(columnFinish.taskIds);
     finishTaskIds.splice(destination.index, 0, draggableId);
     const newFinish = {
@@ -136,12 +154,16 @@ const BoardWorkSpace = () => {
       taskIds: finishTaskIds,
     };
 
-    setColumnsData(prevData =>
-      prevData.map(col =>
-        col.id === newStart.id ? newStart : col.id === newFinish.id ? newFinish : col
+    setColumnsData((prevData) =>
+      prevData.map((col) =>
+        col.id === newStart.id
+          ? newStart
+          : col.id === newFinish.id
+          ? newFinish
+          : col
       )
     );
-  
+
     try {
       await fetch(`http://localhost:5000/columns/${newStart.id}`, {
         method: 'PUT',
@@ -150,7 +172,7 @@ const BoardWorkSpace = () => {
         },
         body: JSON.stringify({ column: newStart }),
       });
-  
+
       await fetch(`http://localhost:5000/columns/${newFinish.id}`, {
         method: 'PUT',
         headers: {
@@ -160,6 +182,20 @@ const BoardWorkSpace = () => {
       });
     } catch (error) {
       console.error('Error updating columns:', error);
+    }
+  };
+
+  const updateColumnOrder = async (newOrder) => {
+    console.log(newOrder);
+
+    try {
+      await fetch('http://localhost:5000/columns/order/updateColumnOrder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder),
+      });
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -280,10 +316,15 @@ const BoardWorkSpace = () => {
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
-                    {columnsData.map((column, index) => {
+                    {columnOrder.map((columnId, index) => {
+                      const column = columnsData.find(
+                        (column) => column.id === columnId
+                      );
                       if (!column || !column.taskIds) {
+                        console.log(column);
                         return [];
                       }
+                      // console.log(column);
 
                       const tasks = tasksData.filter((task) => {
                         return column.taskIds.includes(task.id);
@@ -350,6 +391,9 @@ const BoardWorkSpace = () => {
             >
               Add List
             </AddListButton>
+            <ButtonAccept onClick={fetchColumnOrderData}>
+              Test Get from DB
+            </ButtonAccept>
           </DragDropContext>
         </div>
       </div>
