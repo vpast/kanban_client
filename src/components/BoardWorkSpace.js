@@ -1,6 +1,5 @@
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import Column from './Column';
-// import Tasks from '../Tasks';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -38,26 +37,15 @@ const BoardWorkSpace = () => {
       .then((res) => res.json())
       .then((data) => {
         setColumnOrder(data[0].columnOrder);
-        console.log(columnOrder);
       });
-  };
-
+    };
   // columnsData.map((column) => console.log(column.id));
 
   const fetchTasksData = () => {
     fetch('http://localhost:5000/tasks')
       .then((res) => res.json())
       .then((data) => {
-        // const tasks = {};
-        // data.forEach((task) => {
-        //   tasks[task.id] = task;
-        // });
-        // setState((prevState) => ({
-        //   ...prevState,
-        //   tasks: tasks,
-        // }));
         setTasksData(data);
-        // console.log(tasksData)
       });
   };
 
@@ -72,7 +60,6 @@ const BoardWorkSpace = () => {
 
   let onDragEnd = async (result) => {
     const { destination, source, draggableId, type } = result;
-    // console.log(columnsData, columnsData[source.droppableId])
 
     if (!destination) {
       return;
@@ -210,6 +197,7 @@ const BoardWorkSpace = () => {
       title: newListTitle,
       taskIds: [],
     };
+    const newColumnId = [...columnOrder, columnId];
 
     try {
       const response = await fetch('http://localhost:5000/columns/column', {
@@ -233,7 +221,9 @@ const BoardWorkSpace = () => {
     } catch (error) {
       console.error('Error adding column:', error);
     }
-
+    
+    updateColumnOrder(newColumnId);
+    setColumnOrder();
     setShowAddListModal(false);
     setNewListTitle('');
   };
@@ -298,6 +288,10 @@ const BoardWorkSpace = () => {
     setColumnsData((prevData) => {
       return prevData.filter((column) => column.id !== columnId);
     });
+
+    const newColumnOrder = columnOrder.filter((id) => id !== columnId);
+    setColumnOrder(newColumnOrder);
+    updateColumnOrder(newColumnOrder);
   };
 
   return (
@@ -320,11 +314,11 @@ const BoardWorkSpace = () => {
                       const column = columnsData.find(
                         (column) => column.id === columnId
                       );
-                      if (!column || !column.taskIds) {
-                        console.log(column);
-                        return [];
-                      }
-                      // console.log(column);
+                      // if (!column || !column.taskIds) {
+                      //   // console.log(column);
+                      //   return [];
+                      // }
+                      console.log(column);
 
                       const tasks = tasksData.filter((task) => {
                         return column.taskIds.includes(task.id);
