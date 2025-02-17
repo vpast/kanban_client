@@ -6,9 +6,9 @@ Kanban is a task management application similar to Trello. It helps you organize
 - Add and remove tasks  
 - Add and remove columns  
 - Add and remove boards  
-- Drag and Drop functionality powered by Hello-Pangea DnD  
+- Drag and Drop functionality powered by [Hello-Pangea DnD](https://github.com/hello-pangea/dnd.git)  
 - User authentication and registration  
-- Password hashing with bcrypt  
+- Password hashing with [bcrypt](https://github.com/pyca/bcrypt.git)    
 
 ## Technologies Used  
 - React  
