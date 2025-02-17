@@ -24,7 +24,3 @@ You can check out the live demo [here](https://vpast-kanban-client.vercel.app).
 
 ## Installation and Usage  
 _Installation instructions will be added soon._  
-
----
-
-Feel free to contribute to this project or report any issues!  
