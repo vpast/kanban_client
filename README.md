@@ -20,7 +20,8 @@ Kanban is a task management application similar to Trello. It helps you organize
 - Styled-Components  
 
 ## Demo  
-You can check out the live demo [here](https://vpast-kanban-client.vercel.app).  
+_Demo link will be added soon._   
+![enter image description here](https://i.imgur.com/LPFToZH.gif)
 
 ## Installation and Usage  
 _Installation instructions will be added soon._  
