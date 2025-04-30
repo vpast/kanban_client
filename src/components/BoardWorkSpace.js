@@ -24,12 +24,10 @@ const BoardWorkSpace = () => {
   const [tasksData, setTasksData] = useState([]);
   const [columnOrder, setColumnOrder] = useState([]);
 
-  const fetchColumnsData = () => {
-    fetch('http://localhost:5000/columns')
-      .then((res) => res.json())
-      .then((data) => {
-        setColumnsData(data);
-      });
+  const fetchColumnsData = async () => {
+    const response = await fetch('http://localhost:5000/columns');
+    const data = await response.json();
+    setColumnsData(data);
   };
 
   const fetchColumnOrderData = () => {
@@ -301,9 +299,17 @@ const BoardWorkSpace = () => {
                     ref={provided.innerRef}
                   >
                     {columnOrder.map((columnId, index) => {
+                      if (!columnsData || columnsData.length === 0) {
+                        return null;
+                      }
+
                       const column = columnsData.find(
                         (column) => column.id === columnId
                       );
+
+                      if (!column) {
+                        return null;
+                      }
 
                       const tasks = column.taskIds
                         .map((taskId) =>
