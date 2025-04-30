@@ -187,7 +187,7 @@ const BoardWorkSpace = () => {
       title: newListTitle,
       taskIds: [],
     };
-    const newColumnId = [...columnOrder, columnId];
+    const newColumnOrder = [...columnOrder, columnId];
 
     try {
       const response = await fetch('http://localhost:5000/columns/column', {
@@ -212,8 +212,8 @@ const BoardWorkSpace = () => {
       console.error('Error adding column:', error);
     }
 
-    updateColumnOrder(newColumnId);
-    setColumnOrder();
+    updateColumnOrder(newColumnOrder);
+    setColumnOrder(newColumnOrder);
     setShowAddListModal(false);
     setNewListTitle('');
   };
