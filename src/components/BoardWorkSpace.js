@@ -38,7 +38,7 @@ const BoardWorkSpace = () => {
       .then((data) => {
         setColumnOrder(data[0].columnOrder);
       });
-    };
+  };
   // columnsData.map((column) => console.log(column.id));
 
   const fetchTasksData = () => {
@@ -54,9 +54,6 @@ const BoardWorkSpace = () => {
     fetchColumnOrderData();
     fetchTasksData();
   }, []);
-
-  // console.log(tasksData);
-  // console.log(columnsData);
 
   let onDragEnd = async (result) => {
     const { destination, source, draggableId, type } = result;
@@ -79,19 +76,16 @@ const BoardWorkSpace = () => {
 
       setColumnOrder(newColumnOrder);
       updateColumnOrder(newColumnOrder);
-      console.log(newColumnOrder);
       return;
     }
 
     const columnStart = columnsData.find(
       (column) => column.id === source.droppableId
     );
-    console.log(columnStart);
 
     const columnFinish = columnsData.find(
       (column) => column.id === destination.droppableId
     );
-    console.log(columnFinish);
 
     if (columnStart === columnFinish) {
       const newTaskIds = Array.from(columnStart.taskIds);
@@ -132,8 +126,6 @@ const BoardWorkSpace = () => {
       taskIds: startTaskIds,
     };
 
-    console.log("newStart:", newStart);
-
     const finishTaskIds = Array.from(columnFinish.taskIds);
     finishTaskIds.splice(destination.index, 0, draggableId);
     const newFinish = {
@@ -173,8 +165,6 @@ const BoardWorkSpace = () => {
   };
 
   const updateColumnOrder = async (newOrder) => {
-    console.log(newOrder);
-
     try {
       await fetch('http://localhost:5000/columns/order/updateColumnOrder', {
         method: 'PUT',
@@ -221,7 +211,7 @@ const BoardWorkSpace = () => {
     } catch (error) {
       console.error('Error adding column:', error);
     }
-    
+
     updateColumnOrder(newColumnId);
     setColumnOrder();
     setShowAddListModal(false);
@@ -314,15 +304,12 @@ const BoardWorkSpace = () => {
                       const column = columnsData.find(
                         (column) => column.id === columnId
                       );
-                      // if (!column || !column.taskIds) {
-                      //   // console.log(column);
-                      //   return [];
-                      // }
-                      console.log(column);
 
-                      const tasks = tasksData.filter((task) => {
-                        return column.taskIds.includes(task.id);
-                      });
+                      const tasks = column.taskIds
+                        .map((taskId) =>
+                          tasksData.find((task) => task.id === taskId)
+                        )
+                        .filter(Boolean);
 
                       return (
                         <Column
