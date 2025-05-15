@@ -3,6 +3,7 @@ import Column from './Column';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
+import { API_URL } from '../config';
 import {
   AddListButton,
   Label,
@@ -11,7 +12,6 @@ import {
   ButtonDecline,
   Modal,
 } from '../css/StyledComponents';
-
 const Container = styled.div`
   display: flex;
 `;
@@ -25,13 +25,13 @@ const BoardWorkSpace = () => {
   const [columnOrder, setColumnOrder] = useState([]);
 
   const fetchColumnsData = async () => {
-    const response = await fetch('http://localhost:5000/columns');
+    const response = await fetch(`${API_URL}/columns`);
     const data = await response.json();
     setColumnsData(data);
   };
 
   const fetchColumnOrderData = () => {
-    fetch('http://localhost:5000/columns/order/columnOrder')
+    fetch(`${API_URL}/columns/order/columnOrder`)
       .then((res) => res.json())
       .then((data) => {
         setColumnOrder(data[0].columnOrder);
@@ -40,7 +40,7 @@ const BoardWorkSpace = () => {
   // columnsData.map((column) => console.log(column.id));
 
   const fetchTasksData = () => {
-    fetch('http://localhost:5000/tasks')
+    fetch(`${API_URL}/tasks`)
       .then((res) => res.json())
       .then((data) => {
         setTasksData(data);
@@ -102,7 +102,7 @@ const BoardWorkSpace = () => {
       );
 
       try {
-        await fetch(`http://localhost:5000/columns/${updatedColumn.id}`, {
+        await fetch(`${API_URL}/columns/${updatedColumn.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ const BoardWorkSpace = () => {
     );
 
     try {
-      await fetch(`http://localhost:5000/columns/${newStart.id}`, {
+      await fetch(`${API_URL}/columns/${newStart.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ const BoardWorkSpace = () => {
         body: JSON.stringify({ column: newStart }),
       });
 
-      await fetch(`http://localhost:5000/columns/${newFinish.id}`, {
+      await fetch(`${API_URL}/columns/${newFinish.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ const BoardWorkSpace = () => {
 
   const updateColumnOrder = async (newOrder) => {
     try {
-      await fetch('http://localhost:5000/columns/order/updateColumnOrder', {
+      await fetch(`${API_URL}/columns/order/updateColumnOrder`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newOrder),
@@ -188,7 +188,7 @@ const BoardWorkSpace = () => {
     const newColumnOrder = [...columnOrder, columnId];
 
     try {
-      const response = await fetch('http://localhost:5000/columns/column', {
+      const response = await fetch(`${API_URL}/columns/column`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

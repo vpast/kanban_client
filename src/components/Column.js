@@ -2,6 +2,7 @@ import { Droppable, Draggable } from '@hello-pangea/dnd';
 import Task from './Task';
 import { useState, useEffect, useCallback } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
+import { API_URL } from '../config';
 import {
   Container,
   Title,
@@ -66,7 +67,7 @@ const Column = (props) => {
 
   const handleAcceptRename = async () => {
     try {
-      const response = await fetch('http://localhost:5000/columns/updateColumnTitle', {
+      const response = await fetch(`${API_URL}/columns/updateColumnTitle`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ const Column = (props) => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/tasks', {
+      const response = await fetch(`${API_URL}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +150,7 @@ const Column = (props) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/tasks/${taskId}?columnId=${props.column.id}`,
+        `${API_URL}/tasks/${taskId}?columnId=${props.column.id}`,
         {
           method: 'DELETE',
           headers: {
@@ -179,7 +180,7 @@ const Column = (props) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/columns/${props.column.id}`,
+        `${API_URL}/columns/${props.column.id}`,
         {
           method: 'DELETE',
           headers: {

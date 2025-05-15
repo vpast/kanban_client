@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const Auth = () => {
     };
 
     if (loginData.email !== '' || loginData.password !== '') {
-      fetch('http://localhost:5000/users/login', {
+      fetch(`${API_URL}/users/login`, {
         method: 'POST',
         body: JSON.stringify(loginData),
         headers: {

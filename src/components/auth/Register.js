@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const Register = () => {
     };
 
     if (registerData.email !== '' || registerData.password !== '') {
-      fetch('http://localhost:5000/users/register', {
+      fetch(`${API_URL}/users/register`, {
         method: 'POST',
         body: JSON.stringify(registerData),
         headers: {
