@@ -31,7 +31,7 @@ const BoardWorkSpace = () => {
   };
 
   const fetchColumnOrderData = () => {
-    fetch(`${API_URL}/columns/order/columnOrder`)
+    fetch(`${API_URL}/boards/order/columnOrder`)
       .then((res) => res.json())
       .then((data) => {
         setColumnOrder(data[0].columnOrder);
@@ -164,7 +164,7 @@ const BoardWorkSpace = () => {
 
   const updateColumnOrder = async (newOrder) => {
     try {
-      await fetch(`${API_URL}/columns/order/updateColumnOrder`, {
+      await fetch(`${API_URL}/boards/order/updateColumnOrder`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newOrder),
