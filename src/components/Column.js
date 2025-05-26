@@ -73,16 +73,16 @@ const Column = (props) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: props.column.id, // ID колонки, которую нужно обновить
-          title: newColumnName, // Новый заголовок колонки
+          id: props.column._id,
+          title: newColumnName,
         }),
       });
 
-      console.log(props.column.id, newColumnName);
+      console.log(props.column._id, newColumnName);
 
       const result = await response.json();
 
-      props.updateColumnTitle(result, props.column.id);
+      props.updateColumnTitle(result, props.column._id);
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -120,7 +120,7 @@ const Column = (props) => {
         },
         body: JSON.stringify({
           task: newTaskObject,
-          columnId: props.column.id,
+          columnId: props.column._id,
         }),
       });
 
@@ -130,7 +130,7 @@ const Column = (props) => {
 
       const result = await response.json();
 
-      props.onAddTask(result, props.column.id);
+      props.onAddTask(result, props.column._id);
 
       setNewTask({ content: '' });
       setTaskCount((prevCount) => prevCount + 1);
@@ -150,7 +150,7 @@ const Column = (props) => {
 
     try {
       const response = await fetch(
-        `${API_URL}/tasks/${taskId}?columnId=${props.column.id}`,
+        `${API_URL}/tasks/${taskId}?columnId=${props.column._id}`,
         {
           method: 'DELETE',
           headers: {
@@ -163,7 +163,7 @@ const Column = (props) => {
         throw new Error('Failed to delete task');
       }
 
-      props.onDeleteTask(taskId, props.column.id);
+      props.onDeleteTask(taskId, props.column._id);
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -180,7 +180,7 @@ const Column = (props) => {
 
     try {
       const response = await fetch(
-        `${API_URL}/columns/${props.column.id}`,
+        `${API_URL}/columns/${props.column._id}`,
         {
           method: 'DELETE',
           headers: {
@@ -193,7 +193,7 @@ const Column = (props) => {
         throw new Error(`Failed to delete column: ${response.statusText}`);
       }
 
-      props.onDeleteList(props.column.id);
+      props.onDeleteList(props.column._id);
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -203,7 +203,7 @@ const Column = (props) => {
 
   return (
     <>
-      <Draggable draggableId={props.column.id} index={props.index}>
+      <Draggable draggableId={props.column._id} index={props.index}>
         {(provided) => (
           <div>
             <Container
@@ -242,7 +242,7 @@ const Column = (props) => {
                   </>
                 )}
               </TitleFlex>
-              <Droppable droppableId={props.column.id} type='task'>
+              <Droppable droppableId={props.column._id} type='task'>
                 {(provided, snapshot) => (
                   <div className='flex'>
                     <TaskList

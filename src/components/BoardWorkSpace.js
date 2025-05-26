@@ -57,6 +57,8 @@ const BoardWorkSpace = () => {
   let onDragEnd = async (result) => {
     const { destination, source, draggableId, type } = result;
 
+    console.log(result);
+
     if (!destination) {
       return;
     }
@@ -79,11 +81,11 @@ const BoardWorkSpace = () => {
     }
 
     const columnStart = columnsData.find(
-      (column) => column.id === source.droppableId
+      (column) => column._id === source.droppableId
     );
 
     const columnFinish = columnsData.find(
-      (column) => column.id === destination.droppableId
+      (column) => column._id === destination.droppableId
     );
 
     if (columnStart === columnFinish) {
@@ -98,12 +100,12 @@ const BoardWorkSpace = () => {
 
       setColumnsData((prevData) =>
         prevData.map((col) =>
-          col.id === updatedColumn.id ? updatedColumn : col
+          col._id === updatedColumn._id ? updatedColumn : col
         )
       );
 
       try {
-        await fetch(`${API_URL}/columns/${updatedColumn.id}`, {
+        await fetch(`${API_URL}/columns/${updatedColumn._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -134,16 +136,16 @@ const BoardWorkSpace = () => {
 
     setColumnsData((prevData) =>
       prevData.map((col) =>
-        col.id === newStart.id
+        col._id === newStart._id
           ? newStart
-          : col.id === newFinish.id
+          : col._id === newFinish._id
           ? newFinish
           : col
       )
     );
 
     try {
-      await fetch(`${API_URL}/columns/${newStart.id}`, {
+      await fetch(`${API_URL}/columns/${newStart._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -151,7 +153,7 @@ const BoardWorkSpace = () => {
         body: JSON.stringify({ column: newStart }),
       });
 
-      await fetch(`${API_URL}/columns/${newFinish.id}`, {
+      await fetch(`${API_URL}/columns/${newFinish._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -180,13 +182,10 @@ const BoardWorkSpace = () => {
   };
 
   const handleAddList = async () => {
-    const columnId = 'column-' + Date.now();
     const newColumnObject = {
-      id: columnId,
       title: newListTitle,
       taskIds: [],
     };
-    const newColumnOrder = [...columnOrder, columnId];
 
     try {
       const response = await fetch(`${API_URL}/columns/column`, {
@@ -206,13 +205,14 @@ const BoardWorkSpace = () => {
       const result = await response.json();
       console.log(result);
 
-      setColumnsData((prevData) => [...prevData, newColumnObject]);
+      setColumnsData((prevData) => [...prevData, result.column]);
+      updateColumnOrder([...columnOrder, result.column._id]);
+      setColumnOrder([...columnOrder, result.column._id]);
     } catch (error) {
       console.error('Error adding column:', error);
     }
 
-    updateColumnOrder(newColumnOrder);
-    setColumnOrder(newColumnOrder);
+
     setShowAddListModal(false);
     setNewListTitle('');
   };
@@ -223,7 +223,7 @@ const BoardWorkSpace = () => {
       const updateColumnTitle = newColumnTitle;
 
       return prevData.map((item) => {
-        if (item.id === columnId) {
+        if (item._id === columnId) {
           return {
             ...item,
             title: updateColumnTitle,
@@ -237,12 +237,12 @@ const BoardWorkSpace = () => {
   const onAddTask = (newTask, columnId) => {
     setColumnsData((prevData) => {
       const { id: newTaskId } = newTask.task;
-      const columnData = prevData.find((item) => item.id === columnId);
+      const columnData = prevData.find((item) => item._id === columnId);
       const { taskIds = [] } = columnData;
       const updateTaskIds = [...taskIds, newTaskId];
 
       return prevData.map((item) => {
-        if (item.id === columnId) {
+        if (item._id === columnId) {
           return {
             ...item,
             taskIds: updateTaskIds,
@@ -256,12 +256,12 @@ const BoardWorkSpace = () => {
 
   const onDeleteTask = (taskId, columnId) => {
     setColumnsData((prevData) => {
-      const columnData = prevData.find((item) => item.id === columnId);
+      const columnData = prevData.find((item) => item._id === columnId);
       const { taskIds = [] } = columnData;
       const updateTaskIds = taskIds.filter((id) => id !== taskId);
 
       return prevData.map((item) => {
-        if (item.id === columnId) {
+        if (item._id === columnId) {
           return {
             ...item,
             taskIds: updateTaskIds,
@@ -275,7 +275,7 @@ const BoardWorkSpace = () => {
 
   const onDeleteList = (columnId) => {
     setColumnsData((prevData) => {
-      return prevData.filter((column) => column.id !== columnId);
+      return prevData.filter((column) => column._id !== columnId);
     });
 
     const newColumnOrder = columnOrder.filter((id) => id !== columnId);
@@ -305,7 +305,7 @@ const BoardWorkSpace = () => {
                       }
 
                       const column = columnsData.find(
-                        (column) => column.id === columnId
+                        (column) => column._id === columnId
                       );
 
                       if (!column) {
@@ -320,7 +320,7 @@ const BoardWorkSpace = () => {
 
                       return (
                         <Column
-                          key={column.id}
+                          key={column._id}
                           column={column}
                           tasks={tasks}
                           index={index}
