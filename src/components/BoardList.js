@@ -51,12 +51,12 @@ const BoardList = ({ boardsData, currentBoard, switchBoard, addBoardHandler }) =
         <StyleBoardList>
           {boardsData.map((board) => (
             <StyleBoardListItem
-              key={board.id}
+              key={board._id}
               style={{
-                background: currentBoard === board.id ? '#ffffff8d' : 'none',
+                background: currentBoard === board._id ? '#ffffff8d' : 'none',
               }}
             >
-              <div onClick={() => switchBoard(board.id)}>{board.title}</div>
+              <div onClick={() => switchBoard(board._id)}>{board.title}</div>
             </StyleBoardListItem>
           ))}
         </StyleBoardList>

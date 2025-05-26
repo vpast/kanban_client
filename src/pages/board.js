@@ -48,11 +48,10 @@ const Board = () => {
       console.log(result);
 
       setBoardsData((prevData) => [...prevData, newBoardObject]);
+      switchBoard(result._id);
     } catch (error) {
       console.error('Error adding board:', error);
-    }
-    
-    // switchBoard(newBoard.id);
+    }    
   };
 
   return (
