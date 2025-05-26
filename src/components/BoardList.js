@@ -27,16 +27,17 @@ const BoardListModal = styled(Modal)`
   align-items: center;
 `;
 
-const BoardList = ({ boards, currentBoard, switchBoard, addBoard }) => {
+const BoardList = ({ boardsData, currentBoard, switchBoard, addBoardHandler }) => {
   const [showModal, setShowModal] = useState(false);
   const [newBoardTitle, setNewBoardTitle] = useState('');
   const [isBoardListEditing, setIsBoardListEditing] = useState(false);
 
   const handleAddBoard = () => {
     if (newBoardTitle.trim() !== '') {
-      addBoard(newBoardTitle);
+      addBoardHandler(newBoardTitle);
       setShowModal(false);
       setNewBoardTitle('');
+      setIsBoardListEditing(false);
     }
   };
 
@@ -48,7 +49,7 @@ const BoardList = ({ boards, currentBoard, switchBoard, addBoard }) => {
     <>
       <StyleBoardListFlex className='boardList'>
         <StyleBoardList>
-          {boards.map((board) => (
+          {boardsData.map((board) => (
             <StyleBoardListItem
               key={board.id}
               style={{

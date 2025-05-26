@@ -12,6 +12,7 @@ import {
   ButtonDecline,
   Modal,
 } from '../css/StyledComponents';
+
 const Container = styled.div`
   display: flex;
 `;
