@@ -236,7 +236,7 @@ const BoardWorkSpace = () => {
 
   const onAddTask = (newTask, columnId) => {
     setColumnsData((prevData) => {
-      const { id: newTaskId } = newTask.task;
+      const { _id: newTaskId } = newTask.task;
       const columnData = prevData.find((item) => item._id === columnId);
       const { taskIds = [] } = columnData;
       const updateTaskIds = [...taskIds, newTaskId];
@@ -270,7 +270,7 @@ const BoardWorkSpace = () => {
         return item;
       });
     });
-    setTasksData((prevData) => prevData.filter((task) => task.id !== taskId));
+    setTasksData((prevData) => prevData.filter((task) => task._id !== taskId));
   };
 
   const onDeleteList = (columnId) => {
@@ -314,7 +314,7 @@ const BoardWorkSpace = () => {
 
                       const tasks = column.taskIds
                         .map((taskId) =>
-                          tasksData.find((task) => task.id === taskId)
+                          tasksData.find((task) => task._id === taskId)
                         )
                         .filter(Boolean);
 

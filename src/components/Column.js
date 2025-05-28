@@ -106,9 +106,7 @@ const Column = (props) => {
       return;
     }
 
-    const taskId = 'task-' + Date.now();
     const newTaskObject = {
-      id: taskId,
       content: newTask.content,
     };
 
@@ -254,7 +252,7 @@ const Column = (props) => {
                         // console.log(task)
                         return (
                           <Task
-                            key={task.id}
+                            key={task._id}
                             task={task}
                             index={index}
                             onDelete={handleDeleteTask}
