@@ -1,6 +1,6 @@
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import Column from './Column';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
 import { API_URL } from '../config';
@@ -23,7 +23,7 @@ const BoardWorkSpace = () => {
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
   const [columnsData, setColumnsData] = useState([]);
   const [tasksData, setTasksData] = useState([]);
-  const [columnOrder, setColumnOrder] = useState([]);
+  const [boardData, setBoardData] = useState(null);
 
   const fetchColumnsData = async () => {
     const response = await fetch(`${API_URL}/columns`);
@@ -31,14 +31,15 @@ const BoardWorkSpace = () => {
     setColumnsData(data);
   };
 
-  const fetchColumnOrderData = () => {
-    fetch(`${API_URL}/boards/order/columnOrder`)
-      .then((res) => res.json())
-      .then((data) => {
-        setColumnOrder(data[0].columnOrder);
-      });
+  const fetchBoardData = async () => {
+    try {
+      const response = await fetch(`${API_URL}/boards`);
+      const data = await response.json();
+      setBoardData(data[0]);
+    } catch (error) {
+      console.error('Error fetching board data:', error);
+    }
   };
-  // columnsData.map((column) => console.log(column.id));
 
   const fetchTasksData = () => {
     fetch(`${API_URL}/tasks`)
@@ -48,11 +49,59 @@ const BoardWorkSpace = () => {
       });
   };
 
+  const updateBoardColumns = useCallback(async (newColumns) => {
+    const optimisticBoardData = {
+      ...boardData,
+      columns: newColumns
+    };
+    setBoardData(optimisticBoardData);
+
+    try {
+      const response = await fetch(`${API_URL}/boards/${boardData._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          columns: newColumns
+        }),
+      });
+      
+      if (!response.ok) {
+        setBoardData(boardData);
+        throw new Error('Failed to update board');
+      }
+
+      const updatedBoard = await response.json();
+      setBoardData(updatedBoard);
+    } catch (error) {
+      console.error('Error updating board columns:', error);
+      setBoardData(boardData);
+    }
+  }, [boardData]);
+
   useEffect(() => {
     fetchColumnsData();
-    fetchColumnOrderData();
+    fetchBoardData();
     fetchTasksData();
   }, []);
+
+  useEffect(() => {
+    if (columnsData.length > 0 && boardData) {
+      const missingColumns = columnsData.filter(
+        column => !boardData.columns.includes(column._id)
+      );
+      
+      const invalidOrderIds = boardData.columns.filter(
+        orderId => !columnsData.some(column => column._id === orderId)
+      );
+
+      if (missingColumns.length > 0 || invalidOrderIds.length > 0) {
+        const newColumns = columnsData.map(column => column._id);
+        updateBoardColumns(newColumns);
+      }
+    }
+  }, [columnsData, boardData, updateBoardColumns]);
 
   let onDragEnd = async (result) => {
     const { destination, source, draggableId, type } = result;
@@ -71,12 +120,35 @@ const BoardWorkSpace = () => {
     }
 
     if (type === 'column') {
-      const newColumnOrder = Array.from(columnOrder);
-      newColumnOrder.splice(source.index, 1);
-      newColumnOrder.splice(destination.index, 0, draggableId);
+      const newColumns = Array.from(boardData.columns);
+      newColumns.splice(source.index, 1);
+      newColumns.splice(destination.index, 0, draggableId);
 
-      setColumnOrder(newColumnOrder);
-      updateColumnOrder(newColumnOrder);
+      const optimisticBoardData = {
+        ...boardData,
+        columns: newColumns
+      };
+      setBoardData(optimisticBoardData);
+
+      try {
+        const response = await fetch(`${API_URL}/boards/${boardData._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            columns: newColumns
+          }),
+        });
+        
+        if (!response.ok) {
+          setBoardData(boardData);
+          throw new Error('Failed to update board');
+        }
+      } catch (error) {
+        console.error('Error updating board columns:', error);
+        setBoardData(boardData);
+      }
       return;
     }
 
@@ -165,18 +237,6 @@ const BoardWorkSpace = () => {
     }
   };
 
-  const updateColumnOrder = async (newOrder) => {
-    try {
-      await fetch(`${API_URL}/boards/order/updateColumnOrder`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newOrder),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleNewAddListTitle = (event) => {
     setNewListTitle(event.target.value);
   };
@@ -206,12 +266,12 @@ const BoardWorkSpace = () => {
       console.log(result);
 
       setColumnsData((prevData) => [...prevData, result.column]);
-      updateColumnOrder([...columnOrder, result.column._id]);
-      setColumnOrder([...columnOrder, result.column._id]);
+      
+      const newColumns = [...boardData.columns, result.column._id];
+      updateBoardColumns(newColumns);
     } catch (error) {
       console.error('Error adding column:', error);
     }
-
 
     setShowAddListModal(false);
     setNewListTitle('');
@@ -277,10 +337,9 @@ const BoardWorkSpace = () => {
     setColumnsData((prevData) => {
       return prevData.filter((column) => column._id !== columnId);
     });
-
-    const newColumnOrder = columnOrder.filter((id) => id !== columnId);
-    setColumnOrder(newColumnOrder);
-    updateColumnOrder(newColumnOrder);
+  
+    const newColumns = boardData.columns.filter(id => id !== columnId);
+    updateBoardColumns(newColumns);
   };
 
   return (
@@ -299,18 +358,9 @@ const BoardWorkSpace = () => {
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
-                    {columnOrder.map((columnId, index) => {
-                      if (!columnsData || columnsData.length === 0) {
-                        return null;
-                      }
-
-                      const column = columnsData.find(
-                        (column) => column._id === columnId
-                      );
-
-                      if (!column) {
-                        return null;
-                      }
+                    {boardData?.columns.map((columnId, index) => {
+                      const column = columnsData.find(col => col._id === columnId);
+                      if (!column) return null;
 
                       const tasks = column.taskIds
                         .map((taskId) =>
@@ -379,7 +429,7 @@ const BoardWorkSpace = () => {
             >
               Add List
             </AddListButton>
-            <ButtonAccept onClick={fetchColumnOrderData}>
+            <ButtonAccept onClick={fetchBoardData}>
               Test Get from DB
             </ButtonAccept>
           </DragDropContext>
