@@ -1,27 +1,57 @@
-# Kanban  
 
-Kanban is a task management application similar to Trello. It helps you organize tasks, columns, and boards with drag-and-drop functionality. The project also features user authentication with password hashing using bcrypt.  
+# 🗂️ Kanban
 
-## Features  
-- Add and remove tasks  
-- Add and remove columns  
-- Add and remove boards  
-- Drag and Drop functionality powered by [Hello-Pangea DnD](https://github.com/hello-pangea/dnd.git)  
-- User authentication and registration  
-- Password hashing with [bcrypt](https://github.com/pyca/bcrypt.git)    
+**Kanban** is a task management web application inspired by Trello. It allows you to create boards, columns, and tasks, and manage them with an intuitive drag-and-drop interface. It also features user authentication and secure password storage using bcrypt.
 
-## Technologies Used  
-- React  
-- Node.js  
-- MongoDB  
-- Bcrypt  
-- Webpack  
-- Hello-Pangea DnD  
-- Styled-Components  
+## 🚀 Features
 
-## Demo  
-_Demo link will be added soon._   
-![enter image description here](https://i.imgur.com/LPFToZH.gif)
+-   ✅ **Create and delete boards**
+    
+-   🔄 **Switch between boards**
+    
+-   ✅ **Create and delete columns within boards**
+    
+-   ✅ **Create and delete tasks**
+    
+-   🟰 **Drag and drop tasks within columns**
+    
+-   ↔️ **Drag and drop columns within boards**
+    
+-   🔐 **User registration and authentication**
+    
+-   🔒 **Password hashing with [bcrypt](https://github.com/pyca/bcrypt.git)**
+    
 
-## Installation and Usage  
+## 🛠️ Technologies Used
+
+**Frontend:**
+
+-   React
+    
+-   Styled-Components
+    
+-   Hello-Pangea DnD
+    
+-   Webpack
+    
+
+**Backend:**
+
+-   Node.js
+    
+-   Express
+    
+-   MongoDB
+    
+-   Mongoose
+    
+-   Bcrypt
+    
+
+## 📸 Demo
+
+_Demo coming soon._  
+![Kanban Demo](https://i.imgur.com/LPFToZH.gif)
+
+## 📦 Installation and Usage
 _Installation instructions will be added soon._  
