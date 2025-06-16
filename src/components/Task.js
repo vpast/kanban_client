@@ -10,13 +10,13 @@ const Task = (props) => {
 
   const handleDeleteTask = () => {
     // console.log('Deleting task with ID:', task.id);
-    onDelete(task.id);
+    onDelete(task._id);
   };
 
   return (
     <>
       <Draggable
-        draggableId={task?.id}
+        draggableId={task?._id}
         index={index}
         className='containerTaskBox'
       >

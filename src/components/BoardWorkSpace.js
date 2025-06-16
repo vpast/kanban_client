@@ -1,6 +1,6 @@
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import Column from './Column';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
 import { API_URL } from '../config';
@@ -12,49 +12,110 @@ import {
   ButtonDecline,
   Modal,
 } from '../css/StyledComponents';
+
 const Container = styled.div`
   display: flex;
 `;
 
-const BoardWorkSpace = () => {
+const BoardWorkSpace = ({ boardsData, currentBoard, switchBoard }) => {
   const [showAddListModal, setShowAddListModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
   const [columnsData, setColumnsData] = useState([]);
   const [tasksData, setTasksData] = useState([]);
-  const [columnOrder, setColumnOrder] = useState([]);
+  const [boardData, setBoardData] = useState(null);
 
-  const fetchColumnsData = async () => {
-    const response = await fetch(`${API_URL}/columns`);
-    const data = await response.json();
-    setColumnsData(data);
-  };
+  const fetchColumnsData = useCallback(async () => {
+    if (!currentBoard) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/columns`);
+      const data = await response.json();
+      
+      const currentBoardData = boardsData.find(board => board._id === currentBoard);
+      if (!currentBoardData) return;
 
-  const fetchColumnOrderData = () => {
-    fetch(`${API_URL}/columns/order/columnOrder`)
-      .then((res) => res.json())
-      .then((data) => {
-        setColumnOrder(data[0].columnOrder);
+      const boardColumns = data.filter(column => 
+        currentBoardData.columns.includes(column._id)
+      );
+      setColumnsData(boardColumns);
+    } catch (error) {
+      console.error('Error fetching columns:', error);
+    }
+  }, [currentBoard, boardsData]);
+
+  const fetchBoardData = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/boards/${currentBoard}`);
+      const data = await response.json();
+      setBoardData(data);
+    } catch (error) {
+      console.error('Error fetching board data:', error);
+    }
+  }, [currentBoard]);
+
+  const fetchTasksData = useCallback(async () => {
+    if (!currentBoard) return;
+
+    try {
+      const response = await fetch(`${API_URL}/tasks`);
+      const data = await response.json();
+      
+      const boardTasks = data.filter(task => 
+        columnsData.some(column => column.taskIds.includes(task._id))
+      );
+      setTasksData(boardTasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  }, [currentBoard, columnsData]);
+
+  const updateBoardColumns = useCallback(async (newColumns) => {
+    if (!boardData) return;
+
+    try {
+      const response = await fetch(`${API_URL}/boards/${boardData._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          columns: newColumns
+        }),
       });
-  };
-  // columnsData.map((column) => console.log(column.id));
+      
+      if (!response.ok) {
+        throw new Error('Failed to update board');
+      }
 
-  const fetchTasksData = () => {
-    fetch(`${API_URL}/tasks`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTasksData(data);
-      });
-  };
+      const updatedBoard = await response.json();
+      setBoardData(updatedBoard);
+    } catch (error) {
+      console.error('Error updating board columns:', error);
+    }
+  }, [boardData]);
 
   useEffect(() => {
-    fetchColumnsData();
-    fetchColumnOrderData();
-    fetchTasksData();
-  }, []);
+    if (currentBoard) {
+      fetchBoardData();
+      fetchColumnsData();
+    } else {
+      setColumnsData([]);
+      setTasksData([]);
+      setBoardData(null);
+    }
+  }, [currentBoard, fetchBoardData, fetchColumnsData]);
+
+  useEffect(() => {
+    if (currentBoard && columnsData.length > 0) {
+      fetchTasksData();
+    }
+  }, [currentBoard, columnsData, fetchTasksData]);
 
   let onDragEnd = async (result) => {
     const { destination, source, draggableId, type } = result;
+
+    console.log(result);
 
     if (!destination) {
       return;
@@ -68,21 +129,44 @@ const BoardWorkSpace = () => {
     }
 
     if (type === 'column') {
-      const newColumnOrder = Array.from(columnOrder);
-      newColumnOrder.splice(source.index, 1);
-      newColumnOrder.splice(destination.index, 0, draggableId);
+      const newColumns = Array.from(boardData.columns);
+      newColumns.splice(source.index, 1);
+      newColumns.splice(destination.index, 0, draggableId);
 
-      setColumnOrder(newColumnOrder);
-      updateColumnOrder(newColumnOrder);
+      const optimisticBoardData = {
+        ...boardData,
+        columns: newColumns
+      };
+      setBoardData(optimisticBoardData);
+
+      try {
+        const response = await fetch(`${API_URL}/boards/${boardData._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            columns: newColumns
+          }),
+        });
+        
+        if (!response.ok) {
+          setBoardData(boardData);
+          throw new Error('Failed to update board');
+        }
+      } catch (error) {
+        console.error('Error updating board columns:', error);
+        setBoardData(boardData);
+      }
       return;
     }
 
     const columnStart = columnsData.find(
-      (column) => column.id === source.droppableId
+      (column) => column._id === source.droppableId
     );
 
     const columnFinish = columnsData.find(
-      (column) => column.id === destination.droppableId
+      (column) => column._id === destination.droppableId
     );
 
     if (columnStart === columnFinish) {
@@ -97,12 +181,12 @@ const BoardWorkSpace = () => {
 
       setColumnsData((prevData) =>
         prevData.map((col) =>
-          col.id === updatedColumn.id ? updatedColumn : col
+          col._id === updatedColumn._id ? updatedColumn : col
         )
       );
 
       try {
-        await fetch(`${API_URL}/columns/${updatedColumn.id}`, {
+        await fetch(`${API_URL}/columns/${updatedColumn._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -133,16 +217,16 @@ const BoardWorkSpace = () => {
 
     setColumnsData((prevData) =>
       prevData.map((col) =>
-        col.id === newStart.id
+        col._id === newStart._id
           ? newStart
-          : col.id === newFinish.id
+          : col._id === newFinish._id
           ? newFinish
           : col
       )
     );
 
     try {
-      await fetch(`${API_URL}/columns/${newStart.id}`, {
+      await fetch(`${API_URL}/columns/${newStart._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +234,7 @@ const BoardWorkSpace = () => {
         body: JSON.stringify({ column: newStart }),
       });
 
-      await fetch(`${API_URL}/columns/${newFinish.id}`, {
+      await fetch(`${API_URL}/columns/${newFinish._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -162,30 +246,15 @@ const BoardWorkSpace = () => {
     }
   };
 
-  const updateColumnOrder = async (newOrder) => {
-    try {
-      await fetch(`${API_URL}/columns/order/updateColumnOrder`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newOrder),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleNewAddListTitle = (event) => {
     setNewListTitle(event.target.value);
   };
 
   const handleAddList = async () => {
-    const columnId = 'column-' + Date.now();
     const newColumnObject = {
-      id: columnId,
       title: newListTitle,
       taskIds: [],
     };
-    const newColumnOrder = [...columnOrder, columnId];
 
     try {
       const response = await fetch(`${API_URL}/columns/column`, {
@@ -205,13 +274,14 @@ const BoardWorkSpace = () => {
       const result = await response.json();
       console.log(result);
 
-      setColumnsData((prevData) => [...prevData, newColumnObject]);
+      setColumnsData((prevData) => [...prevData, result.column]);
+      
+      const newColumns = [...boardData.columns, result.column._id];
+      updateBoardColumns(newColumns);
     } catch (error) {
       console.error('Error adding column:', error);
     }
 
-    updateColumnOrder(newColumnOrder);
-    setColumnOrder(newColumnOrder);
     setShowAddListModal(false);
     setNewListTitle('');
   };
@@ -222,7 +292,7 @@ const BoardWorkSpace = () => {
       const updateColumnTitle = newColumnTitle;
 
       return prevData.map((item) => {
-        if (item.id === columnId) {
+        if (item._id === columnId) {
           return {
             ...item,
             title: updateColumnTitle,
@@ -235,13 +305,13 @@ const BoardWorkSpace = () => {
 
   const onAddTask = (newTask, columnId) => {
     setColumnsData((prevData) => {
-      const { id: newTaskId } = newTask.task;
-      const columnData = prevData.find((item) => item.id === columnId);
+      const { _id: newTaskId } = newTask.task;
+      const columnData = prevData.find((item) => item._id === columnId);
       const { taskIds = [] } = columnData;
       const updateTaskIds = [...taskIds, newTaskId];
 
       return prevData.map((item) => {
-        if (item.id === columnId) {
+        if (item._id === columnId) {
           return {
             ...item,
             taskIds: updateTaskIds,
@@ -253,14 +323,14 @@ const BoardWorkSpace = () => {
     setTasksData((prevData) => [...prevData, newTask.task]);
   };
 
-  const onDeleteTask = (taskId, columnId) => {
+  const onDeleteTask = (taskId, columnId) => { 
     setColumnsData((prevData) => {
-      const columnData = prevData.find((item) => item.id === columnId);
+      const columnData = prevData.find((item) => item._id === columnId);
       const { taskIds = [] } = columnData;
       const updateTaskIds = taskIds.filter((id) => id !== taskId);
 
       return prevData.map((item) => {
-        if (item.id === columnId) {
+        if (item._id === columnId) {
           return {
             ...item,
             taskIds: updateTaskIds,
@@ -269,119 +339,110 @@ const BoardWorkSpace = () => {
         return item;
       });
     });
-    setTasksData((prevData) => prevData.filter((task) => task.id !== taskId));
+    setTasksData((prevData) => prevData.filter((task) => task._id !== taskId));
   };
 
   const onDeleteList = (columnId) => {
     setColumnsData((prevData) => {
-      return prevData.filter((column) => column.id !== columnId);
+      return prevData.filter((column) => column._id !== columnId);
     });
-
-    const newColumnOrder = columnOrder.filter((id) => id !== columnId);
-    setColumnOrder(newColumnOrder);
-    updateColumnOrder(newColumnOrder);
+  
+    const newColumns = boardData.columns.filter(id => id !== columnId);
+    updateBoardColumns(newColumns);
   };
 
   return (
     <>
       <div className='workSpacePadding'>
         <div className='workSpaceCard'>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable
-              droppableId='all-columns'
-              direction='horizontal'
-              type='column'
-            >
-              {(provided) => (
-                <div>
-                  <Container
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {columnOrder.map((columnId, index) => {
-                      if (!columnsData || columnsData.length === 0) {
-                        return null;
-                      }
+          {currentBoard ? (
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable
+                droppableId='all-columns'
+                direction='horizontal'
+                type='column'
+              >
+                {(provided) => (
+                  <div>
+                    <Container
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                    >
+                      {boardData?.columns.map((columnId, index) => {
+                        const column = columnsData.find(col => col._id === columnId);
+                        if (!column) return null;
 
-                      const column = columnsData.find(
-                        (column) => column.id === columnId
-                      );
+                        const tasks = column.taskIds
+                          .map((taskId) =>
+                            tasksData.find((task) => task._id === taskId)
+                          )
+                          .filter(Boolean);
 
-                      if (!column) {
-                        return null;
-                      }
-
-                      const tasks = column.taskIds
-                        .map((taskId) =>
-                          tasksData.find((task) => task.id === taskId)
-                        )
-                        .filter(Boolean);
-
-                      return (
-                        <Column
-                          key={column.id}
-                          column={column}
-                          tasks={tasks}
-                          index={index}
-                          onAddTask={onAddTask}
-                          onDeleteTask={onDeleteTask}
-                          onDeleteList={onDeleteList}
-                          updateColumnTitle={onUpdateColumnTitle}
-                          fetchTasksData={fetchTasksData}
-                        />
-                      );
-                    })}
-                    {provided.placeholder}
-                    {showAddListModal && (
-                      <div>
-                        <Modal>
-                          <Label>
-                            <LabelTitle>New List :</LabelTitle>
-                            <TextareaAutosize
-                              className='textAreaAutoSizeColumn'
-                              placeholder='New Title'
-                              value={newListTitle}
-                              onChange={handleNewAddListTitle}
-                            />
-                          </Label>
-                          <div className='buttonsPlacement'>
-                            <ButtonAccept
-                              onClick={() => {
-                                handleAddList();
-                                setAddButtonVisible(true);
-                              }}
-                            >
-                              Add
-                            </ButtonAccept>
-                            <ButtonDecline
-                              onClick={() => {
-                                setShowAddListModal(false);
-                                setAddButtonVisible(true);
-                              }}
-                            >
-                              Back
-                            </ButtonDecline>
-                          </div>
-                        </Modal>
-                      </div>
-                    )}
-                  </Container>
-                </div>
-              )}
-            </Droppable>
-            <AddListButton
-              isVisible={isAddButtonVisible}
-              onClick={() => {
-                setShowAddListModal(true);
-                setAddButtonVisible(false);
-              }}
-            >
-              Add List
-            </AddListButton>
-            <ButtonAccept onClick={fetchColumnOrderData}>
-              Test Get from DB
-            </ButtonAccept>
-          </DragDropContext>
+                        return (
+                          <Column
+                            key={column._id}
+                            column={column}
+                            tasks={tasks}
+                            index={index}
+                            onAddTask={onAddTask}
+                            onDeleteTask={onDeleteTask}
+                            onDeleteList={onDeleteList}
+                            updateColumnTitle={onUpdateColumnTitle}
+                            fetchTasksData={fetchTasksData}
+                          />
+                        );
+                      })}
+                      {provided.placeholder}
+                      {showAddListModal && (
+                        <div>
+                          <Modal>
+                            <Label>
+                              <LabelTitle>New List :</LabelTitle>
+                              <TextareaAutosize
+                                className='textAreaAutoSizeColumn'
+                                placeholder='New Title'
+                                value={newListTitle}
+                                onChange={handleNewAddListTitle}
+                              />
+                            </Label>
+                            <div className='buttonsPlacement'>
+                              <ButtonAccept
+                                onClick={() => {
+                                  handleAddList();
+                                  setAddButtonVisible(true);
+                                }}
+                              >
+                                Add
+                              </ButtonAccept>
+                              <ButtonDecline
+                                onClick={() => {
+                                  setShowAddListModal(false);
+                                  setAddButtonVisible(true);
+                                }}
+                              >
+                                Back
+                              </ButtonDecline>
+                            </div>
+                          </Modal>
+                        </div>
+                      )}
+                    </Container>
+                  </div>
+                )}
+              </Droppable>
+              <AddListButton
+                isVisible={isAddButtonVisible}
+                onClick={() => {
+                  setShowAddListModal(true);
+                  setAddButtonVisible(false);
+                }}
+              >
+                Add List
+              </AddListButton>
+            </DragDropContext>
+          ) : (
+            <div>Выберите доску</div>
+          )}
         </div>
       </div>
     </>
