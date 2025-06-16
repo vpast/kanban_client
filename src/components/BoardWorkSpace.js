@@ -17,7 +17,7 @@ const Container = styled.div`
   display: flex;
 `;
 
-const BoardWorkSpace = () => {
+const BoardWorkSpace = ({ boardsData, currentBoard, switchBoard }) => {
   const [showAddListModal, setShowAddListModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [isAddButtonVisible, setAddButtonVisible] = useState(true);
@@ -26,35 +26,52 @@ const BoardWorkSpace = () => {
   const [boardData, setBoardData] = useState(null);
 
   const fetchColumnsData = async () => {
-    const response = await fetch(`${API_URL}/columns`);
-    const data = await response.json();
-    setColumnsData(data);
+    if (!currentBoard) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/columns`);
+      const data = await response.json();
+      
+      const currentBoardData = boardsData.find(board => board._id === currentBoard);
+      if (!currentBoardData) return;
+
+      const boardColumns = data.filter(column => 
+        currentBoardData.columns.includes(column._id)
+      );
+      setColumnsData(boardColumns);
+    } catch (error) {
+      console.error('Error fetching columns:', error);
+    }
   };
 
   const fetchBoardData = async () => {
     try {
-      const response = await fetch(`${API_URL}/boards`);
+      const response = await fetch(`${API_URL}/boards/${currentBoard}`);
       const data = await response.json();
-      setBoardData(data[0]);
+      setBoardData(data);
     } catch (error) {
       console.error('Error fetching board data:', error);
     }
   };
 
-  const fetchTasksData = () => {
-    fetch(`${API_URL}/tasks`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTasksData(data);
-      });
+  const fetchTasksData = async () => {
+    if (!currentBoard) return;
+
+    try {
+      const response = await fetch(`${API_URL}/tasks`);
+      const data = await response.json();
+      
+      const boardTasks = data.filter(task => 
+        columnsData.some(column => column.taskIds.includes(task._id))
+      );
+      setTasksData(boardTasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
   };
 
   const updateBoardColumns = useCallback(async (newColumns) => {
-    const optimisticBoardData = {
-      ...boardData,
-      columns: newColumns
-    };
-    setBoardData(optimisticBoardData);
+    if (!boardData) return;
 
     try {
       const response = await fetch(`${API_URL}/boards/${boardData._id}`, {
@@ -68,7 +85,6 @@ const BoardWorkSpace = () => {
       });
       
       if (!response.ok) {
-        setBoardData(boardData);
         throw new Error('Failed to update board');
       }
 
@@ -76,32 +92,25 @@ const BoardWorkSpace = () => {
       setBoardData(updatedBoard);
     } catch (error) {
       console.error('Error updating board columns:', error);
-      setBoardData(boardData);
     }
   }, [boardData]);
 
   useEffect(() => {
-    fetchColumnsData();
-    fetchBoardData();
-    fetchTasksData();
-  }, []);
+    if (currentBoard) {
+      fetchBoardData();
+      fetchColumnsData();
+    } else {
+      setColumnsData([]);
+      setTasksData([]);
+      setBoardData(null);
+    }
+  }, [currentBoard]);
 
   useEffect(() => {
-    if (columnsData.length > 0 && boardData) {
-      const missingColumns = columnsData.filter(
-        column => !boardData.columns.includes(column._id)
-      );
-      
-      const invalidOrderIds = boardData.columns.filter(
-        orderId => !columnsData.some(column => column._id === orderId)
-      );
-
-      if (missingColumns.length > 0 || invalidOrderIds.length > 0) {
-        const newColumns = columnsData.map(column => column._id);
-        updateBoardColumns(newColumns);
-      }
+    if (currentBoard && columnsData.length > 0) {
+      fetchTasksData();
     }
-  }, [columnsData, boardData, updateBoardColumns]);
+  }, [currentBoard, columnsData]);
 
   let onDragEnd = async (result) => {
     const { destination, source, draggableId, type } = result;
@@ -314,7 +323,7 @@ const BoardWorkSpace = () => {
     setTasksData((prevData) => [...prevData, newTask.task]);
   };
 
-  const onDeleteTask = (taskId, columnId) => {
+  const onDeleteTask = (taskId, columnId) => { 
     setColumnsData((prevData) => {
       const columnData = prevData.find((item) => item._id === columnId);
       const { taskIds = [] } = columnData;
@@ -346,93 +355,94 @@ const BoardWorkSpace = () => {
     <>
       <div className='workSpacePadding'>
         <div className='workSpaceCard'>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable
-              droppableId='all-columns'
-              direction='horizontal'
-              type='column'
-            >
-              {(provided) => (
-                <div>
-                  <Container
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {boardData?.columns.map((columnId, index) => {
-                      const column = columnsData.find(col => col._id === columnId);
-                      if (!column) return null;
+          {currentBoard ? (
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable
+                droppableId='all-columns'
+                direction='horizontal'
+                type='column'
+              >
+                {(provided) => (
+                  <div>
+                    <Container
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                    >
+                      {boardData?.columns.map((columnId, index) => {
+                        const column = columnsData.find(col => col._id === columnId);
+                        if (!column) return null;
 
-                      const tasks = column.taskIds
-                        .map((taskId) =>
-                          tasksData.find((task) => task._id === taskId)
-                        )
-                        .filter(Boolean);
+                        const tasks = column.taskIds
+                          .map((taskId) =>
+                            tasksData.find((task) => task._id === taskId)
+                          )
+                          .filter(Boolean);
 
-                      return (
-                        <Column
-                          key={column._id}
-                          column={column}
-                          tasks={tasks}
-                          index={index}
-                          onAddTask={onAddTask}
-                          onDeleteTask={onDeleteTask}
-                          onDeleteList={onDeleteList}
-                          updateColumnTitle={onUpdateColumnTitle}
-                          fetchTasksData={fetchTasksData}
-                        />
-                      );
-                    })}
-                    {provided.placeholder}
-                    {showAddListModal && (
-                      <div>
-                        <Modal>
-                          <Label>
-                            <LabelTitle>New List :</LabelTitle>
-                            <TextareaAutosize
-                              className='textAreaAutoSizeColumn'
-                              placeholder='New Title'
-                              value={newListTitle}
-                              onChange={handleNewAddListTitle}
-                            />
-                          </Label>
-                          <div className='buttonsPlacement'>
-                            <ButtonAccept
-                              onClick={() => {
-                                handleAddList();
-                                setAddButtonVisible(true);
-                              }}
-                            >
-                              Add
-                            </ButtonAccept>
-                            <ButtonDecline
-                              onClick={() => {
-                                setShowAddListModal(false);
-                                setAddButtonVisible(true);
-                              }}
-                            >
-                              Back
-                            </ButtonDecline>
-                          </div>
-                        </Modal>
-                      </div>
-                    )}
-                  </Container>
-                </div>
-              )}
-            </Droppable>
-            <AddListButton
-              isVisible={isAddButtonVisible}
-              onClick={() => {
-                setShowAddListModal(true);
-                setAddButtonVisible(false);
-              }}
-            >
-              Add List
-            </AddListButton>
-            <ButtonAccept onClick={fetchBoardData}>
-              Test Get from DB
-            </ButtonAccept>
-          </DragDropContext>
+                        return (
+                          <Column
+                            key={column._id}
+                            column={column}
+                            tasks={tasks}
+                            index={index}
+                            onAddTask={onAddTask}
+                            onDeleteTask={onDeleteTask}
+                            onDeleteList={onDeleteList}
+                            updateColumnTitle={onUpdateColumnTitle}
+                            fetchTasksData={fetchTasksData}
+                          />
+                        );
+                      })}
+                      {provided.placeholder}
+                      {showAddListModal && (
+                        <div>
+                          <Modal>
+                            <Label>
+                              <LabelTitle>New List :</LabelTitle>
+                              <TextareaAutosize
+                                className='textAreaAutoSizeColumn'
+                                placeholder='New Title'
+                                value={newListTitle}
+                                onChange={handleNewAddListTitle}
+                              />
+                            </Label>
+                            <div className='buttonsPlacement'>
+                              <ButtonAccept
+                                onClick={() => {
+                                  handleAddList();
+                                  setAddButtonVisible(true);
+                                }}
+                              >
+                                Add
+                              </ButtonAccept>
+                              <ButtonDecline
+                                onClick={() => {
+                                  setShowAddListModal(false);
+                                  setAddButtonVisible(true);
+                                }}
+                              >
+                                Back
+                              </ButtonDecline>
+                            </div>
+                          </Modal>
+                        </div>
+                      )}
+                    </Container>
+                  </div>
+                )}
+              </Droppable>
+              <AddListButton
+                isVisible={isAddButtonVisible}
+                onClick={() => {
+                  setShowAddListModal(true);
+                  setAddButtonVisible(false);
+                }}
+              >
+                Add List
+              </AddListButton>
+            </DragDropContext>
+          ) : (
+            <div>Выберите доску</div>
+          )}
         </div>
       </div>
     </>
