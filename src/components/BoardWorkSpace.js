@@ -25,7 +25,7 @@ const BoardWorkSpace = ({ boardsData, currentBoard, switchBoard }) => {
   const [tasksData, setTasksData] = useState([]);
   const [boardData, setBoardData] = useState(null);
 
-  const fetchColumnsData = async () => {
+  const fetchColumnsData = useCallback(async () => {
     if (!currentBoard) return;
     
     try {
@@ -42,9 +42,9 @@ const BoardWorkSpace = ({ boardsData, currentBoard, switchBoard }) => {
     } catch (error) {
       console.error('Error fetching columns:', error);
     }
-  };
+  }, [currentBoard, boardsData]);
 
-  const fetchBoardData = async () => {
+  const fetchBoardData = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/boards/${currentBoard}`);
       const data = await response.json();
@@ -52,9 +52,9 @@ const BoardWorkSpace = ({ boardsData, currentBoard, switchBoard }) => {
     } catch (error) {
       console.error('Error fetching board data:', error);
     }
-  };
+  }, [currentBoard]);
 
-  const fetchTasksData = async () => {
+  const fetchTasksData = useCallback(async () => {
     if (!currentBoard) return;
 
     try {
@@ -68,7 +68,7 @@ const BoardWorkSpace = ({ boardsData, currentBoard, switchBoard }) => {
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
-  };
+  }, [currentBoard, columnsData]);
 
   const updateBoardColumns = useCallback(async (newColumns) => {
     if (!boardData) return;
@@ -104,13 +104,13 @@ const BoardWorkSpace = ({ boardsData, currentBoard, switchBoard }) => {
       setTasksData([]);
       setBoardData(null);
     }
-  }, [currentBoard]);
+  }, [currentBoard, fetchBoardData, fetchColumnsData]);
 
   useEffect(() => {
     if (currentBoard && columnsData.length > 0) {
       fetchTasksData();
     }
-  }, [currentBoard, columnsData]);
+  }, [currentBoard, columnsData, fetchTasksData]);
 
   let onDragEnd = async (result) => {
     const { destination, source, draggableId, type } = result;
