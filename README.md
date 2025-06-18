@@ -1,9 +1,9 @@
 
-# 🗂️ Kanban
+# Kanban
 
 **Kanban** is a task management web application inspired by Trello. It allows you to create boards, columns, and tasks, and manage them with an intuitive drag-and-drop interface. It also features user authentication and secure password storage using bcrypt.
 
-## 🚀 Features
+## Features
 
 -   ✅ **Create and delete boards**
     
@@ -22,7 +22,7 @@
 -   🔒 **Password hashing with [bcrypt](https://github.com/pyca/bcrypt.git)**
     
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 **Frontend:**
 
@@ -48,10 +48,10 @@
 -   Bcrypt
     
 
-## 📸 Demo
+## Demo
 
 _Demo coming soon._  
 ![Kanban Demo](https://i.imgur.com/LPFToZH.gif)
 
-## 📦 Installation and Usage
+## Installation and Usage
 _Installation instructions will be added soon._  
